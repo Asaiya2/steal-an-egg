@@ -36,47 +36,59 @@ pcall(function()
     end
 end)
 
-for _, Table in getgc(true) do
-    if typeof(Table) ~= "table" then continue end
-    if getrawmetatable(Table) then continue end
+-- Optional executor compatibility guard. Some executors do not expose getgc/getrawmetatable.
+do
+    local getgcFn = getgc
+    local getrawmetatableFn = getrawmetatable
+    if typeof(getgcFn) == "function" then
+        local ok, gcObjects = pcall(getgcFn, true)
+        if ok and type(gcObjects) == "table" then
+            for _, Table in gcObjects do
+                if typeof(Table) ~= "table" then continue end
+                if typeof(getrawmetatableFn) == "function" and getrawmetatableFn(Table) then continue end
 
-    local HasRecursiveTable = false
+                local HasRecursiveTable = false
 
-    for _, Value in Table do
-        if typeof(Value) ~= "table" then continue end
+                for _, Value in Table do
+                    if typeof(Value) ~= "table" then continue end
 
-        if Table == Value then
-            HasRecursiveTable = true
-            break
-        end
-    end
+                    if Table == Value then
+                        HasRecursiveTable = true
+                        break
+                    end
+                end
 
-    if not HasRecursiveTable then
-        continue
-    end
+                if not HasRecursiveTable then
+                    continue
+                end
 
-    local BanIndex: number
-    for _, Value in Table do
-        if typeof(Value) ~= "number" then continue end
+                local BanIndex: number
+                for _, Value in Table do
+                    if typeof(Value) ~= "number" then continue end
 
-        for Index = 1, 3  do
-            if Value == Index then
-                BanIndex = Index
-                break
+                    for Index = 1, 3 do
+                        if Value == Index then
+                            BanIndex = Index
+                            break
+                        end
+                    end
+
+                    if BanIndex then
+                        break
+                    end
+                end
+
+                if BanIndex and Table[BanIndex] == nil and typeof(setmetatable) == "function" then
+                    setmetatable(Table, {
+                        __newindex = function(self, Key, Value)
+                            if typeof(rconsolewarn) == "function" then
+                                rconsolewarn(`Blocked {Key} {Value}`)
+                            end
+                        end
+                    })
+                end
             end
         end
-
-        if BanIndex then
-            break
-        end
-    end
-
-    if BanIndex and Table[BanIndex] == nil then
-        setmetatable(Table, {
-            __newindex = function(self, Key, Value)
-                rconsolewarn(`Blocked {Key} {Value}`)
-            end
-        })
     end
 end
 
