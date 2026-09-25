@@ -1210,7 +1210,44 @@ n4()r.DescendantAdded :Connect(function(e,...) pcall(function(...)
     end
     )
 end
-)D4=function(...) h.onTreadmill = false h.teleporting = false h.glidingToTarget = false h.securingEgg = false h.isReturning = false h.delivering = false h.holdingEggForGuard = false h.currentTargetModel =nil h.targetPosition =nil h.stateTime =os.clock ()
+)
+task.spawn(function()
+    local stuckSince = 0
+    while h.alive do
+        task.wait(2)
+        if h.onTreadmill and not h.pureTweenFarm and not h.autoFarmLoop
+           and not h.teleporting and not h.glidingToTarget
+           and not h.securingEgg and not h.isReturning then
+            local ok = L4()
+            if not ok then
+                stuckSince = stuckSince + 2
+                if stuckSince >= 6 then
+                    pcall(M4)
+                    pcall(C4)
+                    h.onTreadmill = false
+                    h.tread = nil
+                    pcall(n4)
+                    task.wait(0.3)
+                    pcall(f4)
+                    stuckSince = 0
+                end
+            else
+                stuckSince = 0
+            end
+        else
+            stuckSince = 0
+        end
+    end
+end)
+task.spawn(function()
+    while h.alive do
+        task.wait(15)
+        if h.autoTreadmill and not h.onTreadmill then
+            pcall(n4)
+        end
+    end
+end)
+D4=function(...) h.onTreadmill = false h.teleporting = false h.glidingToTarget = false h.securingEgg = false h.isReturning = false h.delivering = false h.holdingEggForGuard = false h.currentTargetModel =nil h.targetPosition =nil h.stateTime =os.clock ()
     local e=o.Character
     local r=e and e:FindFirstChild( "HumanoidRootPart" )
     if r then
@@ -2149,6 +2186,23 @@ I4=function(...)
         end
     end
     h.tread =y
+    pcall(function()
+        if y then
+            y.CanTouch = true
+            y.CanCollide = true
+            if h.plot then
+                local up = h.plot:FindFirstChild("TreadmillUpgrade", true)
+                if up then
+                    for _, d in ipairs(up:GetDescendants()) do
+                        if d:IsA("BasePart") then
+                            d.CanTouch = true
+                            d.CanCollide = true
+                        end
+                    end
+                end
+            end
+        end
+    end)
     return y
 end
 f4=function(e,...)
@@ -3757,6 +3811,22 @@ local qk=os.clock ()task.spawn (function(...)
                             if h.onTreadmill or L4()then
                                 h.statusText = "[SnipeLoop] Target found! Getting off treadmill..." M4()task.wait ( 0.08 )
                             end
+                            -- Delay high-rarity warps by 2 seconds after detection.
+                            -- Rank 4 = Secret, 5 = Eternal, 6 = Divine.
+                            if (tonumber(y.Rank) or 0) >= 4 then
+                                h.statusText = string.format("[SnipeLoop] %s detected! Waiting 2 seconds before warping...", tostring(y.Category or "High-rarity egg"))
+                                H(string.format("[SnipeLoop] %s detected. Delaying warp by 2 seconds...", tostring(y.Category or "High-rarity egg")))
+                                task.wait(2)
+                                local stillAvailable, currentState = k4(y.Uid)
+                                if not stillAvailable and currentState ~= "CarriedBySelf" then
+                                    H(string.format("[SnipeLoop] Egg %s was taken during the 2-second delay. Switching to next target...", tostring(y.Uid)))
+                                    X4[y.Uid] = os.clock() + 5
+                                    return
+                                end
+                                if O4 ~= r or not h.autoFarmLoop or Y4 ~= "WARP" then
+                                    return
+                                end
+                            end
                             local u=((y.Scale and y.Scale > 1.05 ))and string.format ( " | %.1fx" ,y.Scale )or "" H(string.format ( "[SnipeLoop] Starting Warp Snipe: %s | Zone: %s%s (Rank %d)" ,tostring(y.Category or "Egg" ),tostring(y.Area or "Field" ),u,tonumber(y.Rank )or 1 ))h.statusText =string.format ( "[SnipeLoop] Warping for %s%s..." ,tostring(y.Category or "Egg" ),u)
                             local w=l4(y,r)
                             if O4~=r or not h.autoFarmLoop or Y4~= "WARP" then
@@ -5113,6 +5183,123 @@ local function oM(...)
         local N= false
         local U=nil
         local l=nil
+
+        -- ===== STATUS PANEL =====
+        hk:Section({[ "Title" ]= "Status" })
+        Fk.txtStatus = hk:Paragraph({
+            Title = "Status",
+            Desc = "Initializing...",
+            Icon = "activity",
+        })
+        Fk.txtStatusDetail = hk:Paragraph({
+            Title = "Detail",
+            Desc = "-",
+            Icon = "info",
+        })
+        Fk.txtStatusMeta = hk:Paragraph({
+            Title = "Meta",
+            Desc = "-",
+            Icon = "list",
+        })
+
+        task.spawn(function()
+            while h.alive do
+                task.wait(0.25)
+                local statusLine = "Idle"
+                local detailLine = "-"
+
+                -- Priority-ordered state machine mirror
+                if h.holdingEggForGuard then
+                    statusLine = "Holding egg for guard strike"
+                    detailLine = "Waiting for guard to hit so egg can be re-grabbed"
+                elseif h.securingEgg then
+                    statusLine = "Securing egg"
+                    detailLine = "Lifting / re-grabbing target egg"
+                elseif h.teleporting then
+                    statusLine = "Warping (teleport steal)"
+                    detailLine = "Guard-strike warp in progress"
+                elseif h.glidingToTarget then
+                    statusLine = "Gliding to target egg"
+                    detailLine = "Tween mode - flying to egg position"
+                elseif h.isReturning then
+                    statusLine = "Returning home"
+                    detailLine = "Flying back to safe line (X=525, Z=-360)"
+                elseif h.delivering then
+                    statusLine = "Delivering"
+                    detailLine = "Depositing carried eggs at base"
+                elseif h.isBatchPlacing then
+                    statusLine = "Batch placing"
+                    detailLine = string.format("Placing %d stolen eggs", h.batchStealCount or 0)
+                elseif h.isHatching then
+                    statusLine = "Hatching"
+                    detailLine = "Processing ready eggs"
+                elseif h.onTreadmill or (L4 and L4()) then
+                    statusLine = "On treadmill"
+                    detailLine = "Running / waiting for eggs"
+                elseif Y4 == "TWEEN" and h.pureTweenFarm then
+                    statusLine = "Auto Steal (Tween) active"
+                    detailLine = "Scanning for target eggs"
+                elseif Y4 == "WARP" and h.autoFarmLoop then
+                    statusLine = "Auto Steal (Warp) active"
+                    detailLine = "Scanning for target eggs"
+                elseif h.autoTreadmill then
+                    statusLine = "Auto Treadmill idle"
+                    detailLine = "Waiting for target or remounting belt"
+                else
+                    statusLine = "Idle"
+                    detailLine = "No farm active - ready"
+                end
+
+                -- Override with whatever the internal loop last wrote
+                if type(h.statusText) == "string" and h.statusText ~= "" then
+                    statusLine = h.statusText
+                end
+
+                -- Meta line: quick counters
+                local eggsInBag = 0
+                pcall(function()
+                    if type(y4) == "function" then eggsInBag = y4() end
+                end)
+                local metaLine = string.format(
+                    "Mode: %s | Bag: %d eggs | Batch: %d | Hops: %d/%d",
+                    tostring(Y4 or "NONE"),
+                    eggsInBag,
+                    h.batchStealCount or 0,
+                    h.hopCount or 0,
+                    h.maxHops or 15
+                )
+
+                -- Push to UI
+                local function setStatusWidget(widget, newDesc, newTitle)
+                    if not widget then return end
+                    -- Try every known WindUI setter in order
+                    if type(widget.SetDesc) == "function" then
+                        if pcall(widget.SetDesc, widget, newDesc) then return end
+                    end
+                    if type(widget.Set) == "function" then
+                        if pcall(widget.Set, widget, { Desc = newDesc, Title = newTitle }) then return end
+                        if pcall(widget.Set, widget, newDesc) then return end
+                    end
+                    if type(widget.Modify) == "function" then
+                        if pcall(widget.Modify, widget, { Desc = newDesc, Title = newTitle }) then return end
+                    end
+                    -- Last resort: poke the UI element directly
+                    pcall(function()
+                        if widget.UIElements and widget.UIElements.Desc then
+                            widget.UIElements.Desc.Text = newDesc
+                        end
+                        if newTitle and widget.UIElements and widget.UIElements.Title then
+                            widget.UIElements.Title.Text = newTitle
+                        end
+                    end)
+                end
+
+                setStatusWidget(Fk.txtStatus, statusLine, "Status")
+                setStatusWidget(Fk.txtStatusDetail, detailLine, "Detail")
+                setStatusWidget(Fk.txtStatusMeta, metaLine, "Meta")
+            end
+        end)
+
         hk:Section({[ "Title" ]= "Farm" })
         local activateFarmPreset
         Fk.togFarmPreset =hk:Toggle({[ "Title" ]= "Farm Preset" ;
@@ -5140,6 +5327,9 @@ local function oM(...)
             end
         end
         })U=Fk.togTween
+        Fk.togWarp =hk:Toggle({[ "Title" ]= "Auto Steal (Teleport)" ;[ "Desc" ]= "Warp steal - teleports via guard strike ragdoll" ;[ "Icon" ]= "solar:bolt-bold" ;[ "Value" ]=h.autoFarmLoop ;[ "Callback" ]=function(e,...)if N then return end if e then T4( "WARP" )else if Y4== "WARP" or h.autoFarmLoop then T4( "NONE" )end end end })
+Fk.btnWarpOnce =hk:Button({[ "Title" ]= "Single Steal (Teleport)" ;[ "Desc" ]= "Warp to the best target once" ;[ "Icon" ]= "solar:bolt-bold" ;[ "Callback" ]=function(...)task.spawn(function(...)if Y4~= "NONE" then T4( "NONE" )task.wait( 0.2 )end local e=N4()if e then local r=l4(e,nil)if r then pcall(u4)if h.autoGlide then Q4(h.glideSpeed,nil)pcall(u4)end end end end)end })
+
         x4=function(e,...) pcall(function(...)
                 if U and U.Set then
                     N= true U:Set(e)N= false
@@ -5245,7 +5435,7 @@ local function oM(...)
                 return
             end
             -- Apply the requested preset.
-            setToggle("togTween",true)
+            setToggle("togWarp",true)
             setToggle("togAutoReturn",true)
             setToggle("togAutoTreadmill",true)
             setToggle("togAlwaysSecret",true)
