@@ -212,6 +212,30 @@ local X={ "Divine" , "Eternal" , "Secret" ;
 "Rare" ;
 "Uncommon" ;
 "Common" }
+
+-- Custom egg priority targets. These bypass Zone + Rarity filtering,
+-- but still use the normal steal path and the normal 2-second high-rarity delay.
+local CUSTOM_EGGS={
+    "razorfang", "gargoyle", "centaur", "pure jellyfish", "mutant shark",
+    "cosmic skeleton", "cosmic dragon", "cerberus", "kraken", "Yeti", "tralaledon", "trex",
+    "skeleton horse", "pegasus", "oni tiger", "gorilla king", "ice dragon",
+    "mosasaurus", "el maja", "phoenix", "lava dragon", "eternal lunar dragon",
+    "world burner", "archangel", "nightflame", "kitsune", "unicorn",
+}
+local CUSTOM_EGG_TIERS={
+    ["razorfang"]=4,["gargoyle"]=4,["centaur"]=4,["pure jellyfish"]=4,["mutant shark"]=4,
+    ["cosmic skeleton"]=4,["cosmic dragon"]=4,["cerberus"]=4,["kraken"]=4,["yeti"]=4,["tralaledon"]=4,["trex"]=4,
+    ["skeleton horse"]=5,["pegasus"]=5,["oni tiger"]=5,["gorilla king"]=5,["ice dragon"]=5,
+    ["mosasaurus"]=5,["el maja"]=5,["phoenix"]=5,["lava dragon"]=5,["eternal lunar dragon"]=5,
+    ["world burner"]=6,["archangel"]=6,["nightflame"]=6,["kitsune"]=6,["unicorn"]=6,
+}
+local function normalizeCustomEggName(v)
+    return string.lower((tostring(v or ""):gsub("[^%w]", "")))
+end
+local CUSTOM_EGG_LOOKUP={}
+for _,name in ipairs(CUSTOM_EGGS) do
+    CUSTOM_EGG_LOOKUP[normalizeCustomEggName(name)]=name
+end
 local G={[ "Divine" ]=Color3.fromRGB ( 160 , 160 , 160 );
 [ "Eternal" ]=Color3.fromRGB ( 190 , 190 , 190 ),[ "Secret" ]=Color3.fromRGB ( 155 , 155 , 155 ),[ "Cosmic" ]=Color3.fromRGB ( 170 , 170 , 170 ),[ "Mythic" ]=Color3.fromRGB ( 170 , 170 , 170 ),[ "Legendary" ]=Color3.fromRGB ( 155 , 155 , 155 );
 [ "Epic" ]=Color3.fromRGB ( 180 , 180 , 180 );
@@ -281,7 +305,7 @@ local function T(...)
     [ "Common" ]= false }
     if type(e)~= "table" then
         e={[ "selectedZones" ]=r;
-        [ "selectedRarities" ]=y,[ "alwaysCollectSecretPlus" ]= false ,[ "minRarityTier" ]= 4 ;
+        [ "selectedRarities" ]=y,[ "selectedCustomEggs" ]={ },[ "alwaysCollectSecretPlus" ]= false ,[ "minRarityTier" ]= 4 ;
         [ "autoTreadmill" ]= false ;
         [ "autoUpgradeTreadmill" ]= false ,[ "autoBuyTrails" ]= false ;
         [ "hideNotEnoughMoney" ]= false ;
@@ -298,6 +322,9 @@ local function T(...)
                     e.selectedRarities [w]=(y[w]== true )
                 end
             end
+        end
+        if type(e.selectedCustomEggs)~= "table" then
+            e.selectedCustomEggs = {}
         end
         if e.alwaysCollectSecretPlus ==nil then
             e.alwaysCollectSecretPlus = false
@@ -336,6 +363,7 @@ local function x(...) pcall(function(...)
         if writefile and(a and h)then
             local r={[ "selectedZones" ]=h.selectedZones or{};
             [ "selectedRarities" ]=h.selectedRarities or{};
+            [ "selectedCustomEggs" ]=h.selectedCustomEggs or{};
             [ "alwaysCollectSecretPlus" ]=(h.alwaysCollectSecretPlus ~= false ),[ "minRarityTier" ]=h.minRarityTier or 2 ,[ "autoTreadmill" ]=(h.autoTreadmill == true );
             [ "autoUpgradeTreadmill" ]=(h.autoUpgradeTreadmill == true ),[ "autoBuyTrails" ]=(h.autoBuyTrails == true );
             [ "hideNotEnoughMoney" ]=(h.hideNotEnoughMoney == true );
@@ -370,6 +398,7 @@ local W=T()h={[ "godmode" ]=(W.godmode == true),[ "autoGlide" ]=(W.autoGlide == 
 [ "securingEgg" ]= false ,[ "glideSpeed" ]=O();
 [ "selectedZones" ]=W.selectedZones ;
 [ "selectedRarities" ]=W.selectedRarities ;
+[ "selectedCustomEggs" ]=W.selectedCustomEggs or{} ;
 [ "alwaysCollectSecretPlus" ]=(W.alwaysCollectSecretPlus == true) ,[ "minRarityTier" ]=W.minRarityTier ,[ "autoTreadmill" ]=(W.autoTreadmill == true );
 [ "autoUpgradeTreadmill" ]=(W.autoUpgradeTreadmill == true ),[ "autoBuyTrails" ]=(W.autoBuyTrails == true ),[ "hideNotEnoughMoney" ]=(W.hideNotEnoughMoney == true) ;
 [ "performanceMode" ]=(W.performanceMode == true ),[ "disable3D" ]=(W.disable3D == true ),[ "antiAFK" ]=(W.antiAFK == true ),[ "onTreadmill" ]= false ,[ "lastTreadmillMount" ]= 0 ,[ "laneZ" ]= -360 ,[ "swapped" ]= false ;
@@ -3182,6 +3211,47 @@ N4=function(...)
         local V=F[o]or 0
         return V,o
     end
+    local function getCustomEggTarget(rec,category)
+        if type(h.selectedCustomEggs)~= "table" then
+            return nil,nil
+        end
+        local values={
+            category,
+            rec.AssetCategory, rec.Category, rec.Name, rec.DisplayName, rec.EggName, rec.Uid,
+        }
+        if rec.PhysicalModel then
+            values[#values+1]=rec.PhysicalModel.Name
+            pcall(function()
+                values[#values+1]=rec.PhysicalModel:GetAttribute("Category")
+                values[#values+1]=rec.PhysicalModel:GetAttribute("AssetCategory")
+                values[#values+1]=rec.PhysicalModel:GetAttribute("EggName")
+                values[#values+1]=rec.PhysicalModel:GetAttribute("DisplayName")
+            end)
+        end
+        for _,value in ipairs(values) do
+            local key=normalizeCustomEggName(value)
+            local display=CUSTOM_EGG_LOOKUP[key]
+            if display and h.selectedCustomEggs[display]==true then
+                return display,CUSTOM_EGG_TIERS[key] or 4
+            end
+            -- Some game records include an explicit "Egg" / "EggAsset" suffix.
+            -- Strip only those known suffixes; never use broad substring matching
+            -- because "oni tiger" must not match an unrelated "tiger" egg.
+            if key~="" then
+                local base=key
+                if base:sub(-7)=="eggasset" then
+                    base=base:sub(1,-8)
+                elseif base:sub(-3)=="egg" then
+                    base=base:sub(1,-4)
+                end
+                local display2=CUSTOM_EGG_LOOKUP[base]
+                if display2 and h.selectedCustomEggs[display2]==true then
+                    return display2,CUSTOM_EGG_TIERS[base] or 4
+                end
+            end
+        end
+        return nil,nil
+    end
     local function a(r,y,...)
         local u={}
         for e,r in ipairs(e)do
@@ -3225,8 +3295,19 @@ N4=function(...)
                 local K,c=k(r,e,o,y)
                 local i=(h.selectedZones and h.selectedZones [J]== true )
                 local R=(h.selectedRarities and h.selectedRarities [c]== true )
-                local g=(i and R) == true
+                local customName,customTier=getCustomEggTarget(r,e)
+                local isCustomTarget=(customName~=nil)
+                local g=isCustomTarget or ((i and R) == true)
                 if g then
+                    -- Custom targets intentionally ignore the selected Zone + Rarity filters.
+                    -- Their configured rarity tier is retained so the normal 2-second delay still applies.
+                    if isCustomTarget and customTier then
+                        -- Force the known custom egg tier so the existing high-rarity
+                        -- 2-second delay still applies even if the live record's rank is missing.
+                        K=math.max(tonumber(K) or 0,customTier)
+                        y=math.max(tonumber(y) or 0,customTier)
+                        c=(customTier>=6 and "Divine") or (customTier>=5 and "Eternal") or "Secret"
+                    end
                     local k=tonumber(r.AssetScale or r.Scale )or 1
                     local a= 1
                     if r.Mutations and type(r.Mutations )== "table" then
@@ -3246,7 +3327,7 @@ N4=function(...)
                     [ "Rank" ]=y;
                     [ "Income" ]=j,[ "RealIncome" ]=o;
                     [ "Scale" ]=k,[ "MutMultiplier" ]=a,[ "CFrame" ]=r.BoundsCFrame ;
-                    [ "Position" ]=r.BoundsCFrame.Position ,[ "Distance" ]=H,[ "Model" ]=r.PhysicalModel })
+                    [ "Position" ]=r.BoundsCFrame.Position ,[ "Distance" ]=H,[ "Model" ]=r.PhysicalModel,[ "IsCustomEgg" ]=isCustomTarget,[ "CustomEggName" ]=customName })
                 end
             end
         end
@@ -3263,6 +3344,9 @@ N4=function(...)
             end
         end
         table.sort (u,function(e,r,...)
+            if e.IsCustomEgg ~= r.IsCustomEgg then
+                return e.IsCustomEgg == true
+            end
             local y=a(e)
             local u=a(r)
             if y~=u then
@@ -3810,22 +3894,6 @@ local qk=os.clock ()task.spawn (function(...)
                         if y and(h.autoFarmLoop and(Y4== "WARP" and O4==r))then
                             if h.onTreadmill or L4()then
                                 h.statusText = "[SnipeLoop] Target found! Getting off treadmill..." M4()task.wait ( 0.08 )
-                            end
-                            -- Delay high-rarity warps by 2 seconds after detection.
-                            -- Rank 4 = Secret, 5 = Eternal, 6 = Divine.
-                            if (tonumber(y.Rank) or 0) >= 4 then
-                                h.statusText = string.format("[SnipeLoop] %s detected! Waiting 2 seconds before warping...", tostring(y.Category or "High-rarity egg"))
-                                H(string.format("[SnipeLoop] %s detected. Delaying warp by 2 seconds...", tostring(y.Category or "High-rarity egg")))
-                                task.wait(2)
-                                local stillAvailable, currentState = k4(y.Uid)
-                                if not stillAvailable and currentState ~= "CarriedBySelf" then
-                                    H(string.format("[SnipeLoop] Egg %s was taken during the 2-second delay. Switching to next target...", tostring(y.Uid)))
-                                    X4[y.Uid] = os.clock() + 5
-                                    return
-                                end
-                                if O4 ~= r or not h.autoFarmLoop or Y4 ~= "WARP" then
-                                    return
-                                end
                             end
                             local u=((y.Scale and y.Scale > 1.05 ))and string.format ( " | %.1fx" ,y.Scale )or "" H(string.format ( "[SnipeLoop] Starting Warp Snipe: %s | Zone: %s%s (Rank %d)" ,tostring(y.Category or "Egg" ),tostring(y.Area or "Field" ),u,tonumber(y.Rank )or 1 ))h.statusText =string.format ( "[SnipeLoop] Warping for %s%s..." ,tostring(y.Category or "Egg" ),u)
                             local w=l4(y,r)
@@ -5270,33 +5338,21 @@ local function oM(...)
                 )
 
                 -- Push to UI
-                local function setStatusWidget(widget, newDesc, newTitle)
-                    if not widget then return end
-                    -- Try every known WindUI setter in order
-                    if type(widget.SetDesc) == "function" then
-                        if pcall(widget.SetDesc, widget, newDesc) then return end
+                pcall(function()
+                    if Fk.txtStatus and Fk.txtStatus.Set then
+                        Fk.txtStatus:Set({ Desc = statusLine })
                     end
-                    if type(widget.Set) == "function" then
-                        if pcall(widget.Set, widget, { Desc = newDesc, Title = newTitle }) then return end
-                        if pcall(widget.Set, widget, newDesc) then return end
+                end)
+                pcall(function()
+                    if Fk.txtStatusDetail and Fk.txtStatusDetail.Set then
+                        Fk.txtStatusDetail:Set({ Desc = detailLine })
                     end
-                    if type(widget.Modify) == "function" then
-                        if pcall(widget.Modify, widget, { Desc = newDesc, Title = newTitle }) then return end
+                end)
+                pcall(function()
+                    if Fk.txtStatusMeta and Fk.txtStatusMeta.Set then
+                        Fk.txtStatusMeta:Set({ Desc = metaLine })
                     end
-                    -- Last resort: poke the UI element directly
-                    pcall(function()
-                        if widget.UIElements and widget.UIElements.Desc then
-                            widget.UIElements.Desc.Text = newDesc
-                        end
-                        if newTitle and widget.UIElements and widget.UIElements.Title then
-                            widget.UIElements.Title.Text = newTitle
-                        end
-                    end)
-                end
-
-                setStatusWidget(Fk.txtStatus, statusLine, "Status")
-                setStatusWidget(Fk.txtStatusDetail, detailLine, "Detail")
-                setStatusWidget(Fk.txtStatusMeta, metaLine, "Meta")
+                end)
             end
         end)
 
@@ -5585,6 +5641,51 @@ Fk.btnWarpOnce =hk:Button({[ "Title" ]= "Single Steal (Teleport)" ;[ "Desc" ]= "
             end
             h.selectedRarities =r x()
         end
+        })
+
+        local customEggSelected={}
+        for _,name in ipairs(CUSTOM_EGGS) do
+            if h.selectedCustomEggs and h.selectedCustomEggs[name] then
+                table.insert(customEggSelected,name)
+            end
+        end
+        Fk.dropCustomEggs=Ok:Dropdown({[ "Title" ]= "Custom Eggs" ;
+            [ "Desc" ]= "Selected eggs ignore Zone + Rarity filters (normal 2-second high-rarity delay still applies)" ;
+            [ "Values" ]=CUSTOM_EGGS,[ "Value" ]=customEggSelected,[ "Multi" ]= true,[ "AllowNone" ]= true ;
+            [ "Callback" ]=function(e,...)
+                local selected={}
+                local function add(v,...)
+                    if type(v)== "table" then
+                        v=v.Title or v.Name or v[1] or ""
+                    end
+                    local key=normalizeCustomEggName(v)
+                    local display=CUSTOM_EGG_LOOKUP[key]
+                    if display then
+                        selected[display]=true
+                    else
+                        local text=string.lower(tostring(v or ""))
+                        for _,name in ipairs(CUSTOM_EGGS)do
+                            if string.lower(name)==text then
+                                selected[name]=true
+                                break
+                            end
+                        end
+                    end
+                end
+                if type(e)== "table" then
+                    for k,v in pairs(e)do
+                        if type(v)== "string" or type(v)== "table" then
+                            add(v)
+                        elseif type(k)== "string" and v== true then
+                            add(k)
+                        end
+                    end
+                elseif type(e)== "string" then
+                    add(e)
+                end
+                h.selectedCustomEggs=selected
+                x()
+            end
         })
         Ok:Section({[ "Title" ]= "Character" })
         Fk.sliderSpeed =Ok:Slider({[ "Title" ]=P.Character.SpeedTitle ,[ "Desc" ]=P.Character.SpeedDesc ,[ "Step" ]= 25 ,[ "Value" ]={[ "Min" ]= 100 ;
