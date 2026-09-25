@@ -1,3 +1,14 @@
+-- AsaiyaHub Auto Steal DEBUG LOADER
+-- This wrapper is intentionally separate so it can catch syntax/compile errors
+-- that a pcall INSIDE the script cannot catch.
+
+local function dbg(...)
+    print("[AsaiyaHub DEBUG]", ...)
+end
+
+dbg("1/4 Debug loader started")
+
+local source = [=[
 -- ╔══════════════════════════════════════════════════════════════╗
 -- ║              AsaiyaHub — Clean Framework Template            ║
 -- ║  Rayfield-style API · Auto-saves all flags · Ready to use    ║
@@ -710,16 +721,6 @@ function Window:CreateTab(name, order)
 
         local o = { CurrentValue = val }
         function o:Set(v) setVal(v); o.CurrentValue = val end
-        function o:SetRange(newMin, newMax)
-            newMin = tonumber(newMin) or minV
-            newMax = tonumber(newMax) or maxV
-            if newMax <= newMin then return end
-            minV, maxV = newMin, newMax
-            val = math.clamp(val, minV, maxV)
-            local pct = (val - minV) / (maxV - minV)
-            fill.Size = UDim2.new(pct, 0, 1, 0)
-            valLabel.Text = tostring(val) .. (suffix ~= "" and (" " .. suffix) or "")
-        end
         return o
     end
 
@@ -1063,9 +1064,144 @@ win.BackgroundTransparency = 1
 win.Size = UDim2.new(0, WIN_W, 0, WIN_H - 60)
 tw(win, { BackgroundTransparency = 0, Size = UDim2.new(0, WIN_W, 0, WIN_H) }, 0.35)
 
+-- ============================================================
+-- MAIN TAB (pre-built — always order 1)
+-- ============================================================
+do
+    local TabMain = Window:CreateTab("Main", 1)
+    local mainPage = tabPages["Main"]
+
+    -- ── Banner image row ─────────────────────────────────────
+    local imgRow = mk("Frame", {
+        Size             = UDim2.new(1, 0, 0, 140),
+        BackgroundColor3 = Color3.fromRGB(10, 10, 16),
+        BorderSizePixel  = 0,
+        LayoutOrder      = 0,   -- force to top before CreateSection bumps the counter
+        ZIndex           = 4,
+        ClipsDescendants = true,
+    }, mainPage)
+    cr(8, imgRow)
+    sk(T.Stroke, 1, imgRow)
+
+    -- dark bg fill
+    mk("Frame", {
+        Size = UDim2.new(1,0,1,0), BackgroundColor3 = Color3.fromRGB(14,14,22),
+        BorderSizePixel = 0, ZIndex = 5,
+    }, imgRow)
+
+    -- asset image (fills the whole banner, sits behind text)
+    mk("ImageLabel", {
+        Size                 = UDim2.new(1, 0, 1, 0),
+        BackgroundTransparency = 1,
+        Image                = "rbxassetid://112352236867035",
+        ImageTransparency    = 0.35,
+        ScaleType            = Enum.ScaleType.Crop,
+        ZIndex               = 6,
+    }, imgRow)
+
+    -- left accent bar
+    mk("Frame", {
+        Position = UDim2.new(0,0,0,0), Size = UDim2.new(0,4,1,0),
+        BackgroundColor3 = T.Accent, BorderSizePixel = 0, ZIndex = 7,
+    }, imgRow)
+
+    -- top accent bar
+    mk("Frame", {
+        Size = UDim2.new(1,0,0,3),
+        BackgroundColor3 = T.Accent, BorderSizePixel = 0, ZIndex = 7,
+    }, imgRow)
+
+    -- title
+    mk("TextLabel", {
+        Position = UDim2.new(0,18,0,18), Size = UDim2.new(1,-20,0,40),
+        BackgroundTransparency = 1, Text = "Asaiya Hub",
+        TextColor3 = T.Text, TextSize = 28, Font = Enum.Font.GothamBlack,
+        TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 8,
+    }, imgRow)
+
+    -- subtitle
+    mk("TextLabel", {
+        Position = UDim2.new(0,18,0,58), Size = UDim2.new(1,-20,0,20),
+        BackgroundTransparency = 1, Text = "No Limit Lifting Simulator  •  by Asaiya",
+        TextColor3 = T.AccentText, TextSize = 11, Font = Enum.Font.Gotham,
+        TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 8,
+    }, imgRow)
+
+    -- credits line
+    mk("TextLabel", {
+        Position = UDim2.new(0,18,0,78), Size = UDim2.new(1,-20,0,20),
+        BackgroundTransparency = 1,
+        Text = "Plan: Asaiya  •  Coder: Uron  •  Tester: Kiretsuki  •  Funds: Raizel",
+        TextColor3 = T.SubText, TextSize = 10, Font = Enum.Font.Gotham,
+        TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 8,
+    }, imgRow)
+
+    -- bottom divider
+    mk("Frame", {
+        AnchorPoint = Vector2.new(0,1), Position = UDim2.new(0,0,1,0),
+        Size = UDim2.new(1,0,0,1), BackgroundColor3 = T.Stroke,
+        BorderSizePixel = 0, ZIndex = 8,
+    }, imgRow)
+
+    -- ── How to use ───────────────────────────────────────────
+    TabMain:CreateSection("Quick Info")
+    TabMain:CreateParagraph({
+        Title   = "How to use",
+        Content = "Use the tabs on the left to control all features. Close (X) stops the GUI. Minimize (−) keeps everything running.",
+    })
+    TabMain:CreateParagraph({
+        Title   = "Adding tabs",
+        Content = "Add your own tabs below the Main tab block in the script. Each tab goes before the Webhook tab.",
+    })
+    TabMain:CreateParagraph({
+        Title   = "Gamepass Tips",
+        Content = "Running 24/7? You only need the 2x Coins and 2x Muscle gamepasses.",
+    })
+end
+
+-- ============================================================
+-- ══════════════════════════════════════════════════════════
+-- YOUR TABS GO HERE  (order 2 and up, stay below 98)
+-- ══════════════════════════════════════════════════════════
+-- ============================================================
+
+-- To add a tab, write:
+--   local MyTab = Window:CreateTab("Tab Name", tabOrder)
+-- tabOrder: 2, 3, 4 … keep it below 98 (98 = Webhook, 99 = reserved)
+--
+-- Then add elements inside it:
+--   MyTab:CreateSection("Section Title")
+--   MyTab:CreateToggle({...})
+--   MyTab:CreateDropdown({...})
+--   etc.
+--
+-- EXAMPLE (uncomment to use):
+--
+-- local AutoTab = Window:CreateTab("💪 Automatics", 2)
+-- AutoTab:CreateSection("Gain Muscle")
+-- local GainToggle = AutoTab:CreateToggle({
+--     Name         = "Auto Gain Muscle",
+--     CurrentValue = false,
+--     Flag         = "AutoGainMuscle",
+--     Callback     = function(Value)
+--         getgenv().GainMuscle = Value
+--         if Value then
+--             task.spawn(function()
+--                 while getgenv().GainMuscle do
+--                     game:GetService("ReplicatedStorage").RemoteEvent:FireServer({[1]="GainMuscle"})
+--                     task.wait(0.45)
+--                 end
+--             end)
+--         end
+--     end,
+-- })
 
 
 -- ============================================================
+-- AUTO STEAL INTEGRATION
+-- ============================================================
+-- Auto Steal is attached directly to the existing Main tab.
+-- No separate UI framework/window is created.
 -- SOURCE -> ASAIYAH COMPATIBILITY ADAPTER
 -- ============================================================
 -- The original source used the Chilli UI API. This adapter maps its
@@ -1204,64 +1340,7 @@ local function _makeTabAdapter(asTab, tabName)
     return t
 end
 
-local SourceWindowAdapter = {}
-
-function SourceWindowAdapter:CreateWindow(options)
-    options = options or {}
-    local farmTab = Window:CreateTab(options.DefaultTab or "Farm", 2)
-    local tabs = { [options.DefaultTab or "Farm"] = farmTab }
-
-    local wrapped = {}
-
-    function wrapped:GetDefaultTab()
-        return _makeTabAdapter(farmTab, options.DefaultTab or "Farm")
-    end
-
-    function wrapped:CreateTab(c)
-        c = c or {}
-        local name = c.Name or "Tab"
-        local order = tonumber(c.Order) or 10
-        if name == "Player" then order = 3
-        elseif name == "Predictor" then order = 4
-        elseif name == "Progress" then order = 5
-        elseif name == "Server" then order = 6
-        elseif name == "Misc" then order = 7
-        elseif name == "Discord" then order = 8
-        end
-        local asTab = Window:CreateTab(name, order)
-        tabs[name] = asTab
-        return _makeTabAdapter(asTab, name)
-    end
-
-    function wrapped:CreateState(c)
-        c = c or {}
-        local key = _flagName("State", c.Name)
-        local value = cfg[key]
-        if value == nil then value = c.Default end
-        local state = { Value = value }
-        function state:Get() return state.Value end
-        function state:Set(vv)
-            state.Value = vv
-            cfg[key] = vv
-            saveConfig()
-        end
-        return state
-    end
-
-    return wrapped
-end
-
-local v = SourceWindowAdapter
-v.Notify = Notify
-function v:Finalize() end
-
-local genv2 = typeof(getgenv) == "function" and getgenv() or _G
-genv2.ChilliLib = v
-local v2 = v:CreateWindow({ Name = "AsaiyaHub - Steal An Egg", DefaultTab = "Farm" })
-local fn3
-local defaultTab = v2:GetDefaultTab()
-genv2.ChilliHub_Window = v2
-genv2.ChilliHub_DefaultTab = defaultTab
+local defaultTab = _makeTabAdapter(TabMain, "Main")
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -1272,8 +1351,6 @@ local CollectionService = game:GetService("CollectionService")
 local ProximityPromptService = game:GetService("ProximityPromptService")
 local localPlayer = Players.LocalPlayer
 local networking = ReplicatedStorage:WaitForChild("Packages"):WaitForChild("Networking")
-genv2.ChilliHub_Window = v2
-genv2.ChilliHub_DefaultTab = defaultTab
 local fn3
 
 fn3 = function(arg)
@@ -2469,7 +2546,6 @@ end
 
 
 -- GodMode/health-regeneration removed; Auto Steal only needs this compatibility no-op.
-tbl4.GodMode = function(_) end
 tbl4.StopWalking = function()
     local character = localPlayer.Character
     local humanoidRootPart = character and character:FindFirstChild("HumanoidRootPart")
@@ -3401,7 +3477,6 @@ do
     fn24 = function()
         fn21()
         tbl4.EndFlight()
-        tbl4.GodMode(false)
         local character = localPlayer.Character
         character = character and character:FindFirstChildOfClass("Humanoid")
 
@@ -5830,13 +5905,80 @@ do
     end
 
     fn6(function()
-        tbl4.GodMode(false)
         tbl4.ReleaseMovement("steal")
-        fn24()
-    end)
+
+-- ============================================================
+-- WEBHOOK TAB (pre-built — always order 98)
+-- ============================================================
+local TabWebhook = Window:CreateTab("Webhook", 98)
+
+TabWebhook:CreateSection("Discord Webhook")
+TabWebhook:CreateInput({
+    Name            = "Webhook URL",
+    PlaceholderText = "https://discord.com/api/webhooks/...",
+    Flag            = "webhook_url",
+    Callback        = function(val)
+        cfg["webhook_url"] = val
+        saveConfig()
+        Notify("Webhook", "URL saved!", 3)
+    end,
+})
+TabWebhook:CreateButton({
+    Name       = "Test Webhook",
+    ButtonText = "Test",
+    Callback   = function()
+        local ok2 = sendWebhook({
+            title       = "✅ AsaiyaHub Test",
+            description = "Your webhook is working!",
+            color       = 3066993,
+        })
+        Notify(ok2 and "Webhook Sent" or "Webhook Failed", ok2 and "Delivered to Discord!" or "Check your URL.", 3)
+    end,
+})
+TabWebhook:CreateSection("About")
+TabWebhook:CreateParagraph({
+    Title   = "How Webhooks Work",
+    Content = "Paste your Discord webhook URL above and click Test. Your script can call sendWebhook({...}) anywhere to send embeds.",
+})
+
+-- ============================================================
+-- DONE — STARTUP NOTIFICATION
+-- ============================================================
+Notify("AsaiyaHub Loaded", "Ready! Add your tabs between Main and Webhook.", 5)
+print("[AsaiyaHub] Framework ready. Add your tabs between the Main and Webhook sections!")
 
 end) -- end pcall
 
 if not ok then
     warn("[AsaiyaHub] FATAL ERROR:", err)
+end
+]=]
+
+local compiler = loadstring or load
+if type(compiler) ~= "function" then
+    warn("[AsaiyaHub DEBUG] 2/4 ERROR: loadstring/load is unavailable in this executor.")
+    return
+end
+
+dbg("2/4 Source loaded into memory (" .. tostring(#source) .. " bytes)")
+
+local chunk, compileErr = compiler(source, "@Ui_AutoSteal.lua")
+if not chunk then
+    warn("[AsaiyaHub DEBUG] 3/4 COMPILE/SYNTAX ERROR:")
+    warn(tostring(compileErr))
+    dbg("The script did NOT reach runtime. Send me the exact red/yellow error above.")
+    return
+end
+
+dbg("3/4 Compile successful; executing script...")
+
+local ok, runtimeErr = xpcall(chunk, function(err)
+    return debug and debug.traceback and debug.traceback(tostring(err), 2) or tostring(err)
+end)
+
+if not ok then
+    warn("[AsaiyaHub DEBUG] 4/4 RUNTIME ERROR:")
+    warn(tostring(runtimeErr))
+else
+    dbg("4/4 Script finished without an uncaught runtime error.")
 end
