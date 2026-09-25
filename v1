@@ -3653,6 +3653,19 @@ local Ck=os.clock ()task.spawn (function(...)
                                 H(string.format ( "[AutoSteal] Egg %s already taken (%s). Switching to next target..." ,tostring(w.Uid ),tostring(k)))X4[w.Uid ]=os.clock ()+ 5 task.wait ( 0.12 )
                                 return
                             end
+                            -- Delay high-rarity steals by 2 seconds after detection.
+                            -- Rank 4 = Secret, 5 = Eternal, 6 = Divine.
+                            if (tonumber(w.Rank) or 0) >= 4 then
+                                h.statusText = string.format("[AutoSteal] %s detected! Waiting 2 seconds before stealing...", tostring(w.Category or "High-rarity egg"))
+                                H(string.format("[AutoSteal] %s detected. Delaying steal by 2 seconds...", tostring(w.Category or "High-rarity egg")))
+                                task.wait(2)
+                                local stillAvailable, currentState = k4(w.Uid)
+                                if not stillAvailable and currentState ~= "CarriedBySelf" then
+                                    H(string.format("[AutoSteal] Egg %s was taken during the 2-second delay. Switching to next target...", tostring(w.Uid)))
+                                    X4[w.Uid] = os.clock() + 5
+                                    return
+                                end
+                            end
                             h.currentTargetModel =w.Model h.targetPosition =w.Position h.glidingToTarget = true h.stateTime =os.clock ()
                             local a=((w.Scale and w.Scale > 1.05 ))and string.format ( " | %.1fx" ,w.Scale )or "" h.statusText =string.format ( "[AutoSteal] Flying to %s (%s%s)..." ,tostring(w.Category or "Egg" ),tostring(w.Area or "Field" ),a)H(string.format ( "[AutoSteal] Flying to %s | Zone: %s%s | Rank: %d (Corridor Z=-360)" ,tostring(w.Category or "Egg" ),tostring(w.Area or "Field" ),a,tonumber(w.Rank )or 1 ))
                             if not h.swapped then
