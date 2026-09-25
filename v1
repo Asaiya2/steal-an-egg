@@ -225,7 +225,7 @@ local F={[ "Divine" ]= 6 ;
 [ "Common" ]= 0 }
 local h
 local function O(...)
-    local e= 600 pcall(function(...)
+    local e= 1000 pcall(function(...)
         local r= false
         if isfile then
             r=isfile(Z)
@@ -245,7 +245,7 @@ local function O(...)
 end
 local function Y(e,...) pcall(function(...)
         if writefile then
-            local y=math.clamp (math.floor (tonumber(e)or 600 ), 100 , 1000 )writefile(Z,tostring(y))
+            local y=math.clamp (math.floor (tonumber(e)or 1000 ), 100 , 1000 )writefile(Z,tostring(y))
         end
     end
     )
