@@ -36,59 +36,47 @@ pcall(function()
     end
 end)
 
--- Optional executor compatibility guard. Some executors do not expose getgc/getrawmetatable.
-do
-    local getgcFn = getgc
-    local getrawmetatableFn = getrawmetatable
-    if typeof(getgcFn) == "function" then
-        local ok, gcObjects = pcall(getgcFn, true)
-        if ok and type(gcObjects) == "table" then
-            for _, Table in gcObjects do
-                if typeof(Table) ~= "table" then continue end
-                if typeof(getrawmetatableFn) == "function" and getrawmetatableFn(Table) then continue end
+for _, Table in getgc(true) do
+    if typeof(Table) ~= "table" then continue end
+    if getrawmetatable(Table) then continue end
 
-                local HasRecursiveTable = false
+    local HasRecursiveTable = false
 
-                for _, Value in Table do
-                    if typeof(Value) ~= "table" then continue end
+    for _, Value in Table do
+        if typeof(Value) ~= "table" then continue end
 
-                    if Table == Value then
-                        HasRecursiveTable = true
-                        break
-                    end
-                end
+        if Table == Value then
+            HasRecursiveTable = true
+            break
+        end
+    end
 
-                if not HasRecursiveTable then
-                    continue
-                end
+    if not HasRecursiveTable then
+        continue
+    end
 
-                local BanIndex: number
-                for _, Value in Table do
-                    if typeof(Value) ~= "number" then continue end
+    local BanIndex: number
+    for _, Value in Table do
+        if typeof(Value) ~= "number" then continue end
 
-                    for Index = 1, 3 do
-                        if Value == Index then
-                            BanIndex = Index
-                            break
-                        end
-                    end
-
-                    if BanIndex then
-                        break
-                    end
-                end
-
-                if BanIndex and Table[BanIndex] == nil and typeof(setmetatable) == "function" then
-                    setmetatable(Table, {
-                        __newindex = function(self, Key, Value)
-                            if typeof(rconsolewarn) == "function" then
-                                rconsolewarn(`Blocked {Key} {Value}`)
-                            end
-                        end
-                    })
-                end
+        for Index = 1, 3  do
+            if Value == Index then
+                BanIndex = Index
+                break
             end
         end
+
+        if BanIndex then
+            break
+        end
+    end
+
+    if BanIndex and Table[BanIndex] == nil then
+        setmetatable(Table, {
+            __newindex = function(self, Key, Value)
+                rconsolewarn(`Blocked {Key} {Value}`)
+            end
+        })
     end
 end
 
@@ -183,8 +171,7 @@ local l=J( "RF/Treadmill/AskDon" , "AskDon" )or J( "RF/Treadmill/AskMount" , "As
 local D=J( "RF/Treadmill/AskTierRaise" , "Treadmills: RequestUpgrade" , "AskTierRaise" )
 local C=J( "RF/Trailwear/AskPurchase" , "Trailwear: RequestPurchase" , "AskPurchase" )
 local q=J( "RF/Trailwear/AskChoose" , "Trailwear: RequestEquip" , "AskChoose" )
-local n=J( "RF/Trailwear/AskDoff" , "Trailwear: RequestUnequip" , "AskDoff" )
-local asaiyaBaseUpgradeRemote=J( "RE/Homestead/AskBaseTierRaise" , "AskBaseTierRaise" )H(string.format ( "[RemoteCheck] Carry: %s | Snapshot: %s | Place: %s | Hatch: %s | FinishHatch: %s | Strike: %s | Toll: %s | Doff: %s" ,tostring(i~=nil),tostring(R~=nil),tostring(K~=nil),tostring(g~=nil),tostring(Q~=nil),tostring(P~=nil),tostring(N~=nil),tostring(U~=nil)))
+local n=J( "RF/Trailwear/AskDoff" , "Trailwear: RequestUnequip" , "AskDoff" )H(string.format ( "[RemoteCheck] Carry: %s | Snapshot: %s | Place: %s | Hatch: %s | FinishHatch: %s | Strike: %s | Toll: %s | Doff: %s" ,tostring(i~=nil),tostring(R~=nil),tostring(K~=nil),tostring(g~=nil),tostring(Q~=nil),tostring(P~=nil),tostring(N~=nil),tostring(U~=nil)))
 
 local f={[ "Light Dark" ]= 1300 ,[ "LightDark" ]= 1300 ;
 [ "Titan Temple" ]= 1100 ,[ "Cherry Blossom" ]= 1000 ,[ "Cosmic" ]= 900 ;
@@ -297,13 +284,8 @@ local function T(...)
         [ "selectedRarities" ]=y,[ "alwaysCollectSecretPlus" ]= false ,[ "minRarityTier" ]= 4 ;
         [ "autoTreadmill" ]= false ;
         [ "autoUpgradeTreadmill" ]= false ,[ "autoBuyTrails" ]= false ;
-        [ "autoUpgradeBase" ]= false ,[ "autoScramble" ]= false ;
-        [ "stealMissingRift" ]= false ,[ "stealMissingIndex" ]= false ,[ "autoClaimIndex" ]= false ;
-        [ "stealMethod" ]= "Tween" ,[ "returnMethod" ]= "Fly" ;
-        [ "speedBoost" ]= false ,[ "speedBoostValue" ]= 32 ,[ "invisible" ]= false ;
-        [ "autoRejoin" ]= false ,[ "fpsCap" ]= 60 ,[ "optimizer" ]= false ;
         [ "hideNotEnoughMoney" ]= false ;
-        [ "performanceMode" ]= false ,[ "disable3D" ]= false ,[ "antiAFK" ]= false ,[ "language" ]= "EN" }
+        [ "performanceMode" ]= false ,[ "disable3D" ]= false ,[ "antiAFK" ]= false ,[ "invisible" ]= false ,[ "language" ]= "EN" }
     else
         if type(e.selectedZones )~= "table" then
             e.selectedZones =r
@@ -332,19 +314,6 @@ local function T(...)
         if e.autoBuyTrails ==nil then
             e.autoBuyTrails = false
         end
-        if e.autoUpgradeBase ==nil then e.autoUpgradeBase = false end
-        if e.autoScramble ==nil then e.autoScramble = false end
-        if e.stealMissingRift ==nil then e.stealMissingRift = false end
-        if e.stealMissingIndex ==nil then e.stealMissingIndex = false end
-        if e.autoClaimIndex ==nil then e.autoClaimIndex = false end
-        if e.stealMethod ==nil then e.stealMethod = "Tween" end
-        if e.returnMethod ==nil then e.returnMethod = "Fly" end
-        if e.speedBoost ==nil then e.speedBoost = false end
-        if e.speedBoostValue ==nil then e.speedBoostValue = 32 end
-        if e.invisible ==nil then e.invisible = false end
-        if e.autoRejoin ==nil then e.autoRejoin = false end
-        if e.fpsCap ==nil then e.fpsCap = 60 end
-        if e.optimizer ==nil then e.optimizer = false end
         if e.hideNotEnoughMoney ==nil then
             e.hideNotEnoughMoney = false
         end
@@ -369,15 +338,11 @@ local function x(...) pcall(function(...)
             [ "selectedRarities" ]=h.selectedRarities or{};
             [ "alwaysCollectSecretPlus" ]=(h.alwaysCollectSecretPlus ~= false ),[ "minRarityTier" ]=h.minRarityTier or 2 ,[ "autoTreadmill" ]=(h.autoTreadmill == true );
             [ "autoUpgradeTreadmill" ]=(h.autoUpgradeTreadmill == true ),[ "autoBuyTrails" ]=(h.autoBuyTrails == true );
-            [ "autoUpgradeBase" ]=(h.autoUpgradeBase == true ),[ "autoScramble" ]=(h.autoScramble == true );
-            [ "stealMissingRift" ]=(h.stealMissingRift == true ),[ "stealMissingIndex" ]=(h.stealMissingIndex == true );
-            [ "autoClaimIndex" ]=(h.autoClaimIndex == true ),[ "stealMethod" ]=h.stealMethod or "Tween" ,[ "returnMethod" ]=h.returnMethod or "Fly" ;
-            [ "speedBoost" ]=(h.speedBoost == true ),[ "speedBoostValue" ]=tonumber(h.speedBoostValue) or 32 ,[ "invisible" ]=(h.invisible == true );
-            [ "autoRejoin" ]=(h.autoRejoin == true ),[ "fpsCap" ]=tonumber(h.fpsCap) or 60 ,[ "optimizer" ]=(h.optimizer == true );
             [ "hideNotEnoughMoney" ]=(h.hideNotEnoughMoney == true );
             [ "performanceMode" ]=(h.performanceMode == true );
             [ "disable3D" ]=(h.disable3D == true );
             [ "antiAFK" ]=(h.antiAFK == true );
+            [ "invisible" ]=(h.invisible == true );
             [ "godmode" ]=(h.godmode == true );
             [ "autoGlide" ]=(h.autoGlide == true );
             [ "autoHatch" ]=(h.autoHatch == true );
@@ -398,22 +363,17 @@ local function x(...) pcall(function(...)
     end
     )
 end
-local W=T()h={[ "godmode" ]=(W.godmode == true),[ "autoGlide" ]=(W.autoGlide == true),[ "autoHatch" ]=false ;
-[ "autoPlaceEvery5" ]= false ;
+local W=T()h={[ "godmode" ]=(W.godmode == true),[ "autoGlide" ]=(W.autoGlide == true),[ "autoHatch" ]=(W.autoHatch == true) ;
+[ "autoPlaceEvery5" ]=(W.autoPlaceEvery5 == true) ;
 [ "batchStealCount" ]= 0 ,[ "isBatchPlacing" ]= false ,[ "isHatching" ]= false ;
-[ "autoFarmLoop" ]=false ,[ "pureTweenFarm" ]=false ;
+[ "autoFarmLoop" ]=(W.autoFarmLoop == true) ,[ "pureTweenFarm" ]=(W.pureTweenFarm == true) ;
 [ "glidingToTarget" ]= false ;
 [ "securingEgg" ]= false ,[ "glideSpeed" ]=O();
 [ "selectedZones" ]=W.selectedZones ;
 [ "selectedRarities" ]=W.selectedRarities ;
 [ "alwaysCollectSecretPlus" ]=(W.alwaysCollectSecretPlus == true) ,[ "minRarityTier" ]=W.minRarityTier ,[ "autoTreadmill" ]=(W.autoTreadmill == true );
 [ "autoUpgradeTreadmill" ]=(W.autoUpgradeTreadmill == true ),[ "autoBuyTrails" ]=(W.autoBuyTrails == true ),[ "hideNotEnoughMoney" ]=(W.hideNotEnoughMoney == true) ;
-[ "autoUpgradeBase" ]=(W.autoUpgradeBase == true ),[ "autoScramble" ]=(W.autoScramble == true );
-[ "stealMissingRift" ]=(W.stealMissingRift == true ),[ "stealMissingIndex" ]=(W.stealMissingIndex == true ),[ "autoClaimIndex" ]=(W.autoClaimIndex == true );
-[ "stealMethod" ]=W.stealMethod or "Tween" ,[ "returnMethod" ]=W.returnMethod or "Fly" ;
-[ "speedBoost" ]=(W.speedBoost == true ),[ "speedBoostValue" ]=tonumber(W.speedBoostValue) or 32 ,[ "invisible" ]=(W.invisible == true );
-[ "autoRejoin" ]=(W.autoRejoin == true ),[ "fpsCap" ]=tonumber(W.fpsCap) or 60 ,[ "optimizer" ]=(W.optimizer == true );
-[ "performanceMode" ]=(W.performanceMode == true ),[ "disable3D" ]=(W.disable3D == true ),[ "antiAFK" ]=(W.antiAFK == true ),[ "onTreadmill" ]= false ,[ "lastTreadmillMount" ]= 0 ,[ "laneZ" ]= -360 ,[ "swapped" ]= false ;
+[ "performanceMode" ]=(W.performanceMode == true ),[ "disable3D" ]=(W.disable3D == true ),[ "antiAFK" ]=(W.antiAFK == true ),[ "invisible" ]=(W.invisible == true ),[ "onTreadmill" ]= false ,[ "lastTreadmillMount" ]= 0 ,[ "laneZ" ]= -360 ,[ "swapped" ]= false ;
 [ "teleporting" ]= false ,[ "isReturning" ]= false ;
 [ "delivering" ]= false ,[ "holdingEggForGuard" ]= false ,[ "currentTargetModel" ]=nil,[ "targetPosition" ]=nil;
 [ "stateTime" ]=os.clock (),[ "statusText" ]= "Ready" ,[ "bestEggInfo" ]= "Scanning..." ;
@@ -424,7 +384,7 @@ local W=T()h={[ "godmode" ]=(W.godmode == true),[ "autoGlide" ]=(W.autoGlide == 
 -- added features (do not replace existing)
 [ "eggESP" ]=(W.eggESP == true) ;
 [ "antiTrap" ]=(W.antiTrap == true) ;
-[ "autoIndex" ]=(W.autoClaimIndex == true) ;
+[ "autoIndex" ]=(W.autoIndex == true) ;
 [ "autoHop" ]=(W.autoHop == true) ;
 [ "maxHops" ]= 15 ;
 [ "hopDelay" ]= 20 ;
@@ -3213,14 +3173,6 @@ N4=function(...)
                 local i=(h.selectedZones and h.selectedZones [J]== true )
                 local R=(h.selectedRarities and h.selectedRarities [c]== true )
                 local g=(i and R) == true
-                if h.stealMissingIndex then
-                    local missing = asaiyaGetMissingIndex()
-                    if next(missing) ~= nil then g = missing[tostring(e)] == true end
-                end
-                if h.stealMissingRift then
-                    local needs = asaiyaGetRiftNeeds()
-                    if next(needs) ~= nil then g = needs[tostring(e)] == true end
-                end
                 if g then
                     local k=tonumber(r.AssetScale or r.Scale )or 1
                     local a= 1
@@ -3746,7 +3698,7 @@ local Ck=os.clock ()task.spawn (function(...)
                                 if r then
                                     pcall(u4)
                                     if h.autoGlide then
-                                        h.statusText = "[AutoSteal] Secured! Tweening to Safe Line X=525..." H( "[AutoSteal] Egg secured after Guard Strike! Returning smoothly to Safe Line X=525 along Z=-360..." )asaiyaReturnHome(h.returnMethod, h.glideSpeed, u)pcall(u4)
+                                        h.statusText = "[AutoSteal] Secured! Tweening to Safe Line X=525..." H( "[AutoSteal] Egg secured after Guard Strike! Returning smoothly to Safe Line X=525 along Z=-360..." )Q4(h.glideSpeed ,u)pcall(u4)
                                         local r=y4()h.statusText =string.format ( "Stashed in Bag (%d Eggs). Next steal..." ,r)H(string.format ( "[AutoSteal] Egg stashed in bag (%d total eggs). Hands-Free ready for next steal..." ,r))
                                     else
                                         h.statusText = "[AutoSteal] Secured! (Auto Return is OFF)" H( "[AutoSteal] Egg secured! Staying at target (Auto Return is OFF)." )
@@ -3814,7 +3766,7 @@ local qk=os.clock ()task.spawn (function(...)
                             if w then
                                 pcall(u4)
                                 if h.autoGlide then
-                                    h.statusText = "[SnipeLoop] Target secured! Tweening to Safe Line X=525..." asaiyaReturnHome(h.returnMethod, h.glideSpeed, r)pcall(u4)
+                                    h.statusText = "[SnipeLoop] Target secured! Tweening to Safe Line X=525..." Q4(h.glideSpeed ,r)pcall(u4)
                                     local y=y4()h.statusText =string.format ( "Stashed in Bag (%d Eggs). Next snipe..." ,y)H(string.format ( "[SnipeLoop] Egg stashed in bag (%d total eggs). Hands-Free ready for next snipe..." ,y))
                                 else
                                     h.statusText = "[SnipeLoop] Target secured! (Auto Return is OFF)" H( "[SnipeLoop] Snipe successful! Staying at target (Auto Return is OFF)." )
@@ -4114,7 +4066,7 @@ y.Heartbeat :Connect(function(...)
         return
     end
     if h.alive and(h.autoGlide and(w and(not a4()and u.X >E)))then
-        task.spawn (function(...) asaiyaReturnHome(h.returnMethod, h.glideSpeed )u4()h.isReturning = false h.delivering = false
+        task.spawn (function(...) Q4(h.glideSpeed )u4()h.isReturning = false h.delivering = false
         end
         )
     end
@@ -4705,271 +4657,8 @@ task.spawn(function()
 end)
 
 
--- ============================================================
---  [WORST] - Asaiya: requested automation extensions
---  Keeps exploit.lua as the base and adds the requested controls.
--- ============================================================
-local asaiyaSaveCache, asaiyaSaveAt = nil, 0
-local asaiyaRiftCache, asaiyaRiftAt = nil, 0
-
-local function asaiyaGetSave()
-    if asaiyaSaveCache and os.clock() - asaiyaSaveAt < 1 then
-        return asaiyaSaveCache
-    end
-    local ok, result = pcall(function()
-        local shared = ReplicatedStorage:FindFirstChild("Shared")
-        local saveModule = shared and shared:FindFirstChild("Save")
-        if saveModule then
-            local mod = require(saveModule)
-            if type(mod) == "table" and type(mod.Get) == "function" then
-                return mod.Get()
-            end
-        end
-        return nil
-    end)
-    asaiyaSaveCache = ok and type(result) == "table" and result or nil
-    asaiyaSaveAt = os.clock()
-    return asaiyaSaveCache
-end
-
-local function asaiyaGetRiftNeeds()
-    if asaiyaRiftCache and os.clock() - asaiyaRiftAt < 5 then
-        return asaiyaRiftCache
-    end
-    local needs = {}
-    local rf = J("RF/Rift/AskState", "AskState")
-    if rf and rf:IsA("RemoteFunction") then
-        local ok, result = pcall(rf.InvokeServer, rf)
-        if ok and type(result) == "table" and type(result.Requirements) == "table" then
-            local save = asaiyaGetSave() or {}
-            local owned = {}
-            for _, item in pairs(save.Inventory or {}) do
-                if type(item) == "table" and item.Category then owned[tostring(item.Category)] = true end
-            end
-            for _, item in pairs(save.EggInventory or {}) do
-                if type(item) == "table" and item.AssetCategory then owned[tostring(item.AssetCategory)] = true end
-            end
-            for _, category in pairs(result.Requirements) do
-                category = tostring(category)
-                if not owned[category] then needs[category] = true end
-            end
-        end
-    end
-    asaiyaRiftCache = needs
-    asaiyaRiftAt = os.clock()
-    return needs
-end
-
-local function asaiyaGetMissingIndex()
-    local save = asaiyaGetSave() or {}
-    local index = type(save.Index) == "table" and save.Index or {}
-    local missing = {}
-    -- Asset directory keys are the same category identifiers used by EggInventory.
-    local assets = nil
-    pcall(function()
-        if p then assets = p.Assets or p end
-    end)
-    if type(assets) == "table" then
-        for id in pairs(assets) do
-            if index[id] ~= true then missing[tostring(id)] = true end
-        end
-    end
-    for _, egg in pairs(save.EggInventory or {}) do
-        if type(egg) == "table" and egg.AssetCategory and index[egg.AssetCategory] ~= true then
-            missing[tostring(egg.AssetCategory)] = true
-        end
-    end
-    return missing
-end
-
-local function asaiyaReturnHome(method, speed, session)
-    method = method or h.returnMethod or "Fly"
-    if method == "Teleport" then
-        local root = o.Character and o.Character:FindFirstChild("HumanoidRootPart")
-        if not root then return false end
-        h.isReturning = true
-        h.statusText = "[AutoReturn] Teleporting to Safe Line..."
-        local safe = Vector3.new(E, math.max(68, root.Position.Y), h.laneZ or L)
-        pcall(function()
-            root.CFrame = CFrame.new(safe)
-            root.AssemblyLinearVelocity = Vector3.zero
-            root.AssemblyAngularVelocity = Vector3.zero
-        end)
-        pcall(u4)
-        h.isReturning = false
-        h.delivering = false
-        h.statusText = "Arrived at Safe Line (Teleport)."
-        return true
-    end
-    return Q4(speed or h.glideSpeed, session)
-end
-
-local asaiyaOriginalSpeeds = setmetatable({}, { __mode = "k" })
-local function asaiyaApplySpeed()
-    local char = o.Character
-    local hum = char and char:FindFirstChildOfClass("Humanoid")
-    if not hum then return end
-    if h.speedBoost then
-        if asaiyaOriginalSpeeds[hum] == nil then asaiyaOriginalSpeeds[hum] = hum.WalkSpeed end
-        hum.WalkSpeed = math.max(0, tonumber(h.speedBoostValue) or 32)
-    else
-        local old = asaiyaOriginalSpeeds[hum]
-        hum.WalkSpeed = old or 16
-        asaiyaOriginalSpeeds[hum] = nil
-    end
-end
-
-local function asaiyaApplyInvisibility()
-    local char = o.Character
-    if not char then return end
-    for _, obj in ipairs(char:GetDescendants()) do
-        if obj:IsA("BasePart") then
-            pcall(function() obj.LocalTransparencyModifier = h.invisible and 1 or 0 end)
-        elseif obj:IsA("Decal") or obj:IsA("Texture") then
-            pcall(function() obj.LocalTransparencyModifier = h.invisible and 1 or 0 end)
-        end
-    end
-end
-
-local function asaiyaSetFPSCap(value)
-    h.fpsCap = math.clamp(math.floor(tonumber(value) or 60), 15, 240)
-    pcall(function()
-        if typeof(setfpscap) == "function" then setfpscap(h.fpsCap) end
-    end)
-    x()
-end
-
-local asaiyaScrambleBusy = false
-local function asaiyaScrambleInvoke(action, ...)
-    local rf = J("RF/Scramble/Request", "Request")
-    if not rf or not rf:IsA("RemoteFunction") then return nil end
-    local ok, result = pcall(rf.InvokeServer, rf, action, ...)
-    return ok and result or nil
-end
-
-local function asaiyaPrompt(prompt)
-    if not prompt or not prompt:IsA("ProximityPrompt") then return false end
-    local ok = pcall(function()
-        if typeof(fireproximityprompt) == "function" then
-            fireproximityprompt(prompt)
-        else
-            prompt:InputHoldBegin()
-            task.wait((tonumber(prompt.HoldDuration) or 0) + 0.15)
-            prompt:InputHoldEnd()
-        end
-    end)
-    return ok
-end
-
-local function asaiyaScrambleStep()
-    if not h.autoScramble or asaiyaScrambleBusy then return end
-    asaiyaScrambleBusy = true
-    task.spawn(function()
-        pcall(function()
-            local snap = asaiyaScrambleInvoke("Snapshot")
-            if type(snap) ~= "table" then return end
-            if type(snap.Snapshot) == "table" then snap = snap.Snapshot end
-            if snap.Enabled == false then
-                h.statusText = "[Dr Scramble] Event inactive."
-                return
-            end
-            local state = type(snap.State) == "table" and snap.State or snap
-            if state.Completed == true then
-                h.statusText = "[Dr Scramble] Event completed."
-                return
-            end
-            local event = workspace:FindFirstChild("DrScrambleEvent")
-            if not event then
-                h.statusText = "[Dr Scramble] Waiting for event..."
-                return
-            end
-            -- First handle discovery when the event exposes the escaped experiment.
-            if state.Discovered ~= true then
-                local npc = event:FindFirstChild("EscapedExperiment")
-                local prompt = npc and npc:FindFirstChildWhichIsA("ProximityPrompt", true)
-                if prompt then
-                    h.statusText = "[Dr Scramble] Discovering experiment..."
-                    asaiyaPrompt(prompt)
-                    asaiyaScrambleInvoke("Discover")
-                    return
-                end
-            end
-            local parts = type(state.LostParts) == "table" and state.LostParts or {}
-            for _, id in ipairs({"LostPart1", "LostPart2"}) do
-                if h.autoScramble and parts[id] ~= true then
-                    local model = event:FindFirstChild(id)
-                    local hitbox = model and model:FindFirstChild("Hitbox", true)
-                    local prompt = model and model:FindFirstChild("ClaimLostPart", true)
-                    local pos = hitbox and hitbox:IsA("BasePart") and hitbox.Position
-                    if not pos and model and model:IsA("Model") then pos = model:GetPivot().Position end
-                    if pos then
-                        local char = o.Character
-                        local root = char and char:FindFirstChild("HumanoidRootPart")
-                        if root then
-                            h.statusText = "[Dr Scramble] Collecting " .. id .. "..."
-                            if (root.Position - pos).Magnitude > 12 then
-                                pcall(function() R4(CFrame.new(pos + Vector3.new(0,2.5,0)), h.glideSpeed) end)
-                            end
-                            asaiyaPrompt(prompt)
-                            task.wait(0.4)
-                        end
-                    end
-                end
-            end
-        end)
-        asaiyaScrambleBusy = false
-    end)
-end
-
-local asaiyaBaseUpgradeAt = 0
-local function asaiyaAutoUpgradeBase()
-    if not h.autoUpgradeBase or os.clock() - asaiyaBaseUpgradeAt < 8 then return end
-    asaiyaBaseUpgradeAt = os.clock()
-    local save = asaiyaGetSave()
-    if not save then return end
-    local bases = nil
-    pcall(function()
-        local data = ReplicatedStorage:FindFirstChild("Data")
-        local module = data and data:FindFirstChild("Bases")
-        if module then bases = require(module) end
-    end)
-    if type(bases) ~= "table" or type(bases.BASES) ~= "table" then return end
-    local level = tonumber(save.BaseUpgradeLevel) or 0
-    local nextBase = bases.BASES[level + 1]
-    local cost = type(nextBase) == "table" and tonumber(nextBase.Cost) or nil
-    if cost and (tonumber(save.Money) or Vk()) >= cost and asaiyaBaseUpgradeRemote then
-        pcall(function() asaiyaBaseUpgradeRemote:FireServer() end)
-    end
-end
-
-local asaiyaRejoinConnection
-local function asaiyaSetAutoRejoin(enabled)
-    h.autoRejoin = enabled and true or false
-    if asaiyaRejoinConnection then pcall(function() asaiyaRejoinConnection:Disconnect() end) end
-    asaiyaRejoinConnection = nil
-    if not h.autoRejoin then return end
-    local gui = game:GetService("GuiService")
-    pcall(function()
-        asaiyaRejoinConnection = gui.ErrorMessageChanged:Connect(function(message)
-            if h.autoRejoin and tostring(message or "") ~= "" then
-                task.delay(2, function()
-                    pcall(function() TeleportService:Teleport(game.PlaceId, o) end)
-                end)
-            end
-        end)
-    end)
-    pcall(function()
-        TeleportService.TeleportInitFailed:Connect(function(player, result)
-            if player == o and h.autoRejoin then
-                task.delay(3, function() pcall(function() TeleportService:Teleport(game.PlaceId, o) end) end)
-            end
-        end)
-    end)
-end
-
 local Fk={}
 local hk,Ok,Yk,Tk
-
 local xk={ "Farm" ;
 "EggSelect" ;
 "Settings" }
@@ -5417,124 +5106,680 @@ local function oM(...)
             )
         end
         local P=Gk[Xk]or Gk.EN
-        hk=p:Tab({ Title = "Main", Icon = "solar:box-minimalistic-bold" })
-        local Sk=p:Tab({ Title = "Sub", Icon = "solar:layers-bold" })
-        local Uk=p:Tab({ Title = "Upgrade", Icon = "solar:double-alt-arrow-up-bold" })
-        local CkTab=p:Tab({ Title = "Character", Icon = "solar:user-bold" })
-        Ok=p:Tab({ Title = "Preferences", Icon = "lucide:settings-2" })
-        Tk=p:Tab({ Title = "Settings", Icon = "solar:settings-bold" })
-        MkTab=p:Tab({ Title = "Misc", Icon = "lucide:layout-grid" })
+        hk=p:Tab({[ "Title" ]=P.Tabs.Farm ; [ "Icon" ]= "solar:box-minimalistic-bold" })
+        Ok=p:Tab({[ "Title" ]=P.Tabs.EggSelect or "Preference" ; [ "Icon" ]= "lucide:settings-2" })
+        Tk=p:Tab({[ "Title" ]=P.Tabs.Settings ; [ "Icon" ]= "solar:settings-bold" })
+        MkTab=p:Tab({[ "Title" ]= "Misc" ; [ "Icon" ]= "lucide:layout-grid" })
         Yk=Ok
-
-        -- Movement-mode bridge used by the existing Auto Steal controller.
-        local modeGuard=false
-        local modeToggleTween, modeToggleWarp
-        x4=function(state,...)
-            if modeGuard then return end
-            if modeToggleTween and modeToggleTween.Set then
-                modeGuard=true; pcall(function() modeToggleTween:Set(state) end); modeGuard=false
+        local N= false
+        local U=nil
+        local l=nil
+        hk:Section({[ "Title" ]= "Farm" })
+        local activateFarmPreset
+        Fk.togFarmPreset =hk:Toggle({[ "Title" ]= "Farm Preset" ;
+        [ "Desc" ]= "Only Auto Steal, Auto Return, Auto Treadmill, Auto Steal Secret and Anti Trap (Tier 4-6, 3 zones)" ;
+        [ "Icon" ]= "solar:settings-bold" ;
+        [ "Value" ]= false ;
+        [ "Callback" ]=function(state,...)
+            if activateFarmPreset then
+                activateFarmPreset(state)
             end
         end
-        W4=function(state,...)
-            if modeGuard then return end
-            if modeToggleWarp and modeToggleWarp.Set then
-                modeGuard=true; pcall(function() modeToggleWarp:Set(state) end); modeGuard=false
+        })
+        Fk.togTween =hk:Toggle({[ "Title" ]=P.Farm.TweenTitle ,[ "Desc" ]=P.Farm.TweenDesc ,[ "Icon" ]= "solar:compass-bold" ;
+        [ "Value" ]=h.pureTweenFarm ;
+        [ "Callback" ]=function(e,...)
+            if N then
+                return
+            end
+            if e then
+                T4( "TWEEN" )
+            else
+                if Y4== "TWEEN" or h.pureTweenFarm then
+                    T4( "NONE" )
+                end
             end
         end
-
-        hk:Section({ Title = "Auto Farm" })
-        Fk.togAutoSteal = hk:Toggle({
-            Title = "Auto Steal Egg", Desc = "Automatically target and steal eggs", Icon = "solar:box-bold",
-            Value = (h.stealMethod == "Tween" and h.pureTweenFarm) or (h.stealMethod == "Teleport" and h.autoFarmLoop),
+        })U=Fk.togTween
+        x4=function(e,...) pcall(function(...)
+                if U and U.Set then
+                    N= true U:Set(e)N= false
+                end
+            end
+            )
+        end
+        W4=function(e,...) end
+        hk:Section({[ "Title" ]= "Place & Hatch" })
+        Fk.togAutoPlace =hk:Toggle({[ "Title" ]=P.Farm.PlaceTitle or "Auto Place" ;
+        [ "Desc" ]=P.Farm.PlaceDesc or "Automatically place eggs at base" ;
+        [ "Icon" ]= "solar:box-bold" ;
+        [ "Value" ]=h.autoPlaceEvery5 ;
+        [ "Callback" ]=function(e,...)
+            h.autoPlaceEvery5 =e
+            h.autoPlace =e
+            if not e then
+                h.batchStealCount = 0
+            end
+            local r=Gk[Xk]or Gk.EN
+            j({[ "Title" ]= "Auto Place" ,[ "Content" ]=e and((r.Notifications.AutoPlaceStarted or "Auto Place enabled" ))or(r.Notifications.AutoPlaceStopped or "Auto Place disabled" ),[ "Icon" ]=e and "check-circle" or "x-circle" })
+            if e then
+                task.spawn (function(...)
+                    while h.alive and(h.autoPlace or h.autoPlaceEvery5)do
+                        local cnt=y4()
+                        if cnt> 0 and not h.isBatchPlacing and not h.glidingToTarget and not h.securingEgg and not h.teleporting then
+                            pcall(function(...)
+                                h.statusText = "[Auto Place] Placing eggs..."
+                                v4(h.glideSpeed ,nil, true )
+                            end
+                            )
+                        end
+                        task.wait ( 4 )
+                    end
+                end
+                )
+            end
+        end
+        })
+        Fk.togAutoHatch =hk:Toggle({[ "Title" ]=P.Farm.HatchTitle ;
+        [ "Desc" ]=P.Farm.HatchDesc ,[ "Icon" ]= "solar:star-bold" ;
+        [ "Value" ]=h.autoHatch ,[ "Callback" ]=function(e,...) h.autoHatch =e j({[ "Title" ]= "Auto Hatch" ,[ "Content" ]=e and Gk[Xk].Notifications.HatchStarted or Gk[Xk].Notifications.HatchStopped ,[ "Icon" ]=e and "check-circle" or "x-circle" })
+        end
+        })
+        hk:Section({[ "Title" ]= "Extras" })
+        Fk.togAutoReturn =hk:Toggle({[ "Title" ]=P.Farm.ReturnTitle ;
+        [ "Desc" ]=P.Farm.ReturnDesc ;
+        [ "Icon" ]= "solar:undo-left-round-bold" ,[ "Value" ]=h.autoGlide ;
+        [ "Callback" ]=function(e,...) h.autoGlide =e j({[ "Title" ]= "Auto Return" ;
+            [ "Content" ]=e and Gk[Xk].Notifications.ReturnStarted or Gk[Xk].Notifications.ReturnStopped ;
+            [ "Icon" ]=e and "check-circle" or "x-circle" })
+        end
+        })
+        Fk.togAutoTreadmill =hk:Toggle({[ "Title" ]=P.Farm.AutoTreadmillTitle or "Auto Treadmill" ;
+        [ "Desc" ]=P.Farm.AutoTreadmillDesc or "Run on treadmill when idle" ;
+        [ "Icon" ]= "solar:running-bold" ;
+        [ "Value" ]=(h.autoTreadmill == true) ;
+        [ "Callback" ]=function(e,...) h.autoTreadmill =e x()n4()
+            if not e and((h.onTreadmill or L4()))then
+                M4()
+            end
+            local r=Gk[Xk]or Gk.EN j({[ "Title" ]= "Auto Treadmill" ;
+            [ "Content" ]=e and((r.Notifications.AutoTreadmillStarted or "Auto Treadmill enabled" ))or(r.Notifications.AutoTreadmillStopped or "Auto Treadmill disabled" );
+            [ "Icon" ]=e and "check-circle" or "x-circle" })
+        end
+        })
+        Fk.togAutoUpgradeTreadmill =hk:Toggle({[ "Title" ]=P.Farm.UpgradeTreadmillTitle or "Auto Upgrade Treadmill" ;
+        [ "Desc" ]=P.Farm.UpgradeTreadmillDesc or "Upgrade treadmill when you have enough cash" ;
+        [ "Icon" ]= "solar:double-alt-arrow-up-bold" ;
+        [ "Value" ]=(h.autoUpgradeTreadmill == true) ,[ "Callback" ]=function(e,...) h.autoUpgradeTreadmill =e x()
+            local r=Gk[Xk]or Gk.EN j({[ "Title" ]= "Upgrade Treadmill" ,[ "Content" ]=e and((r.Notifications.UpgradeTreadmillStarted or "Auto Upgrade enabled" ))or(r.Notifications.UpgradeTreadmillStopped or "Auto Upgrade disabled" ),[ "Icon" ]=e and "check-circle" or "x-circle" })
+        end
+        })
+        Fk.togAutoBuyTrails =hk:Toggle({[ "Title" ]=P.Farm.BuyTrailsTitle or "Auto Buy Trails" ;
+        [ "Desc" ]=P.Farm.BuyTrailsDesc or "Buy and equip the best trail" ;
+        [ "Icon" ]= "solar:fire-bold" ;
+        [ "Value" ]=h.autoBuyTrails ;
+        [ "Callback" ]=function(e,...) h.autoBuyTrails =e x()
+            local r=Gk[Xk]or Gk.EN j({[ "Title" ]= "Buy Trails" ,[ "Content" ]=e and((r.Notifications.BuyTrailsStarted or "Auto Buy Trails enabled" ))or(r.Notifications.BuyTrailsStopped or "Auto Buy Trails disabled" );
+            [ "Icon" ]=e and "check-circle" or "x-circle" })
+        end
+        })
+        activateFarmPreset=function(enabled,...)
+            local function setToggle(name,value)
+                local t=Fk[name]
+                if t and t.Set then
+                    pcall(function() t:Set(value) end)
+                end
+            end
+            -- Disable every other user-facing toggle first.
+            local all={
+                "togTween","togAutoPlace","togAutoHatch","togAutoReturn","togAutoTreadmill",
+                "togAutoUpgradeTreadmill","togAutoBuyTrails","togAlwaysSecret","togAntiTrap",
+                "togAutoIndex","togGodmode","togAntiAFK","togEggESP","togAutoHop","togFpsBoost",
+                "togWebhook","togWebhookSteal","togWebhookHop"
+            }
+            for _,name in ipairs(all) do
+                setToggle(name,false)
+            end
+            if not enabled then
+                x()
+                j({[ "Title" ]= "Farm Preset" ,[ "Content" ]= "Preset disabled: all toggles are off" ,[ "Icon" ]= "x-circle" })
+                return
+            end
+            -- Apply the requested preset.
+            setToggle("togTween",true)
+            setToggle("togAutoReturn",true)
+            setToggle("togAutoTreadmill",true)
+            setToggle("togAlwaysSecret",true)
+            setToggle("togAntiTrap",true)
+            h.selectedZones={[ "Light Dark" ]=true,[ "Titan Temple" ]=true,[ "Cherry Blossom" ]=true}
+            h.selectedRarities={[ "Secret" ]=true,[ "Eternal" ]=true,[ "Divine" ]=true}
+            h.minRarityTier=4
+            h.glideSpeed=600
+            pcall(function() if Fk.dropTargetZones and Fk.dropTargetZones.Set then Fk.dropTargetZones:Set({"Light Dark","Titan Temple","Cherry Blossom"}) end end)
+            pcall(function() if Fk.dropTargetRarities and Fk.dropTargetRarities.Set then Fk.dropTargetRarities:Set({"Divine (Tier 6)","Eternal (Tier 5)","Secret (Tier 4)"}) end end)
+            pcall(function() if Fk.sliderSpeed and Fk.sliderSpeed.Set then Fk.sliderSpeed:Set(600) end end)
+            x()
+            j({[ "Title" ]= "Farm Preset" ,[ "Content" ]= "Preset enabled: Auto Steal + Return + Treadmill + Secret+ + Anti Trap" ,[ "Icon" ]= "check-circle" })
+        end
+        Ok:Section({[ "Title" ]= "Eggs" })
+        Fk.togAlwaysSecret =Ok:Toggle({[ "Title" ]=(P.EggSelect and P.EggSelect.AlwaysSecretPlus )or "Auto Steal Secret" ;
+        [ "Desc" ]=(P.EggSelect and P.EggSelect.AlwaysSecretPlusDesc )or "Always collect Secret and above" ;
+        [ "Icon" ]= "solar:star-bold" ;
+        [ "Value" ]=h.alwaysCollectSecretPlus ~= false ;
+        [ "Callback" ]=function(e,...) h.alwaysCollectSecretPlus =e x()
+        end
+        })
+        local D={ "Light Dark" ;
+        "Titan Temple" , "Cherry Blossom" ;
+        "Cosmic" ;
+        "Prehistoric" , "Abyss Ocean" , "Volcano" ;
+        "Snow" ;
+        "Jungle" ;
+        "Desert" , "Lake" ;
+        "Forest" }
+        local C={}
+        for _,z in ipairs(D) do C[z]=z end
+        local q={}
+        for _,z in ipairs(D) do q[z]=z end
+        local n={}
+        for e,r in pairs(h.selectedZones or{})do
+            if r and q[e]then
+                table.insert (n,q[e])
+            end
+        end
+        
+        Fk.togAntiTrap = Ok:Toggle({
+            Title = "Anti Trap",
+            Desc = "Dodge trap hitboxes while moving",
+            Icon = "shield",
+            Value = h.antiTrap ~= false,
             Callback = function(state)
-                if state then T4(h.stealMethod == "Teleport" and "WARP" or "TWEEN") else T4("NONE") end
+                h.antiTrap = state and true or false
             end,
         })
-        hk:Section({ Title = "Return & Events" })
-        Fk.togAutoReturn = hk:Toggle({ Title = "Auto Return", Desc = "Return to the safe line after a successful steal", Icon = "solar:undo-left-round-bold", Value = h.autoGlide, Callback=function(v) h.autoGlide=v; x() end })
-        Fk.togAutoTreadmill = hk:Toggle({ Title = "Auto Treadmill", Desc = "Run on the treadmill while idle", Icon = "solar:running-bold", Value = h.autoTreadmill, Callback=function(v) h.autoTreadmill=v; x(); n4(); if not v and (h.onTreadmill or L4()) then M4() end end })
-        Fk.togAutoScramble = hk:Toggle({ Title = "Auto Dr. Scramble Event", Desc = "Automatically work on the active Dr. Scramble event", Icon = "solar:flask-bold", Value = h.autoScramble, Callback=function(v) h.autoScramble=v; x(); if v then asaiyaScrambleStep() end end })
-        Fk.btnStatus = hk:Button({ Title = "Farm Status", Desc = "Show the current automation state", Icon = "solar:info-circle-bold", Callback=function() j({Title="Farm Status",Content=tostring(h.statusText or "Ready"),Icon="info"}) end })
+        Fk.togAutoIndex = Ok:Toggle({
+            Title = "Auto Index",
+            Desc = "Claim index / codex unlocks",
+            Icon = "book",
+            Value = h.autoIndex == true,
+            Callback = function(state)
+                h.autoIndex = state and true or false
+                if state then
+                    task.spawn(asaiyaTryIndex)
+                end
+            end,
+        })
 
-        Sk:Section({ Title = "Missing Targets" })
-        Fk.togMissingRift = Sk:Toggle({ Title = "Steal Missing Rift Eggs", Desc = "Prioritize eggs currently required by the Rift", Icon = "solar:magic-stick-3-bold", Value = h.stealMissingRift, Callback=function(v) h.stealMissingRift=v; asaiyaRiftCache=nil; x() end })
-        Fk.togMissingIndex = Sk:Toggle({ Title = "Steal Missing Index", Desc = "Prioritize eggs that are not yet in your index", Icon = "solar:book-bold", Value = h.stealMissingIndex, Callback=function(v) h.stealMissingIndex=v; x() end })
-        Fk.togAutoClaimIndex = Sk:Toggle({ Title = "Auto Claim Index", Desc = "Claim available index/codex rewards", Icon = "solar:verified-check-bold", Value = h.autoClaimIndex, Callback=function(v) h.autoClaimIndex=v; h.autoIndex=v; x(); if v then task.spawn(asaiyaTryIndex) end end })
-        Fk.togEggESP = Sk:Toggle({ Title = "Egg ESP", Desc = "HUD markers with rarity and distance", Icon = "eye", Value = h.eggESP, Callback=function(v) h.eggESP=v; if v then asaiyaEspStart() else asaiyaEspStop() end; x() end })
+        Fk.dropTargetZones =Ok:Dropdown({[ "Title" ]=(P.EggSelect and P.EggSelect.DropZonesTitle )or "Zones" ,[ "Desc" ]=(P.EggSelect and P.EggSelect.DropZonesDesc )or "Select target zones" ,[ "Values" ]=D,[ "Value" ]=n,[ "Multi" ]= true ;
+        [ "Callback" ]=function(e,...)
+            local r={}
+            local function y(e,...)
+                if type(e)== "table" then
+                    e=e.Title or e.Name or e[ 1 ]or ""
+                end
+                local y=tostring(e or "" )
+                local w=C[y]
+                if not w and(y~= "" and(y~= "true" and y~= "false" ))then
+                    for e,r in ipairs(M)do
+                        if string.find (string.lower (y),string.lower (r))then
+                            w=r
+                            break
+                        end
+                    end
+                end
+                if w and f[w]then
+                    r[w]= true
+                end
+            end
+            if type(e)== "table" then
+                for e,r in pairs(e)do
+                    if type(r)== "string" or type(r)== "table" then
+                        y(r)
+                    elseif type(e)== "string" and r== true then
+                        y(e)
+                    end
+                end
+            elseif type(e)== "string" then
+                y(e)
+            end
+            h.selectedZones =r x()
+        end
+        })
+        local I={ "Divine (Tier 6)" ;
+        "Eternal (Tier 5)" , "Secret (Tier 4)" , "Cosmic (Tier 3)" , "Mythic (Tier 2)" ;
+        "Legendary (Tier 1)" ;
+        "Epic" ;
+        "Rare" ;
+        "Uncommon" , "Common" }
+        local L={[ "Divine (Tier 6)" ]= "Divine" ,[ "Eternal (Tier 5)" ]= "Eternal" ,[ "Secret (Tier 4)" ]= "Secret" ;
+        [ "Cosmic (Tier 3)" ]= "Cosmic" ;
+        [ "Mythic (Tier 2)" ]= "Mythic" ;
+        [ "Legendary (Tier 1)" ]= "Legendary" ,[ "Epic" ]= "Epic" ,[ "Rare" ]= "Rare" ,[ "Uncommon" ]= "Uncommon" ,[ "Common" ]= "Common" }
+        local E={[ "Divine" ]= "Divine (Tier 6)" ,[ "Eternal" ]= "Eternal (Tier 5)" ;
+        [ "Secret" ]= "Secret (Tier 4)" ;
+        [ "Cosmic" ]= "Cosmic (Tier 3)" ,[ "Mythic" ]= "Mythic (Tier 2)" ,[ "Legendary" ]= "Legendary (Tier 1)" ,[ "Epic" ]= "Epic" ,[ "Rare" ]= "Rare" ;
+        [ "Uncommon" ]= "Uncommon" ;
+        [ "Common" ]= "Common" }
+        local b={}
+        for e,r in pairs(h.selectedRarities or{})do
+            if r and E[e]then
+                table.insert (b,E[e])
+            end
+        end
+        Fk.dropTargetRarities =Ok:Dropdown({[ "Title" ]=(P.EggSelect and P.EggSelect.DropRaritiesTitle )or "Rarities" ;
+        [ "Desc" ]=(P.EggSelect and P.EggSelect.DropRaritiesDesc )or "Select target rarities" ,[ "Values" ]=I;
+        [ "Value" ]=b,[ "Multi" ]= true ;
+        [ "Callback" ]=function(e,...)
+            local r={}
+            local function y(e,...)
+                if type(e)== "table" then
+                    e=e.Title or e.Name or e[ 1 ]or ""
+                end
+                local y=string.lower (tostring(e or "" ))
+                for e,u in ipairs(X)do
+                    if string.find (y,string.lower (u))then
+                        r[u]= true
+                        break
+                    end
+                end
+            end
+            if type(e)== "table" then
+                for e,r in pairs(e)do
+                    if type(r)== "string" or type(r)== "table" then
+                        y(r)
+                    elseif type(e)== "string" and r== true then
+                        y(e)
+                    end
+                end
+            elseif type(e)== "string" then
+                y(e)
+            end
+            h.selectedRarities =r x()
+        end
+        })
+        Ok:Section({[ "Title" ]= "Character" })
+        Fk.sliderSpeed =Ok:Slider({[ "Title" ]=P.Character.SpeedTitle ,[ "Desc" ]=P.Character.SpeedDesc ,[ "Step" ]= 25 ,[ "Value" ]={[ "Min" ]= 100 ;
+        [ "Max" ]= 1000 ;
+        [ "Default" ]=h.glideSpeed or 600 },[ "Callback" ]=function(e,...) h.glideSpeed =e Y(e)
+        end
+        })
+        Fk.togGodmode =Ok:Toggle({[ "Title" ]=P.Character.GodmodeTitle ;
+        [ "Desc" ]=P.Character.GodmodeDesc ,[ "Icon" ]= "solar:shield-check-bold" ,[ "Value" ]= false ;
+        [ "Callback" ]=function(e,...)
+            if e then
+                enableasaiyaGodmode()j({[ "Title" ]= "Godmode" ,[ "Content" ]=Gk[Xk].Notifications.GodmodeStarted ,[ "Icon" ]= "shield-check" })
+            else
+                disableasaiyaGodmode()j({[ "Title" ]= "Godmode" ,[ "Content" ]=Gk[Xk].Notifications.GodmodeStopped ,[ "Icon" ]= "shield-off" })
+            end
+        end
+        })
+        Fk.btnUnstick =Ok:Button({[ "Title" ]=P.Character.UnstickTitle ,[ "Desc" ]=P.Character.UnstickDesc ,[ "Icon" ]= "solar:exit-bold" ;
+        [ "Callback" ]=function(...) pcall(M4)pcall(C4)pcall(D4)j({[ "Title" ]= "Unstick" ;
+            [ "Content" ]=Gk[Xk].Notifications.UnstickDone ,[ "Icon" ]= "check" })
+        end
+        })
+        -- ===== Source-style Invisibility (Settings) =====
+        local invisEnabled = h.invisible == true
+        local invisApplying = false
+        local invisRespawnConn = nil
 
-        Uk:Section({ Title = "Upgrades" })
-        Fk.togAutoBuyTrails = Uk:Toggle({ Title = "Auto Buy Trail", Desc = "Buy the highest affordable trail", Icon = "solar:fire-bold", Value = h.autoBuyTrails, Callback=function(v) h.autoBuyTrails=v; x() end })
-        Fk.togAutoUpgradeBase = Uk:Toggle({ Title = "Auto Upgrade Base", Desc = "Upgrade the base whenever the next tier is affordable", Icon = "solar:home-2-bold", Value = h.autoUpgradeBase, Callback=function(v) h.autoUpgradeBase=v; x(); if v then asaiyaAutoUpgradeBase() end end })
-        Fk.togAutoUpgradeTreadmill = Uk:Toggle({ Title = "Auto Upgrade Treadmill", Desc = "Upgrade the treadmill whenever affordable", Icon = "solar:double-alt-arrow-up-bold", Value = h.autoUpgradeTreadmill, Callback=function(v) h.autoUpgradeTreadmill=v; x() end })
+        local function invisFindRemote(name)
+            local ok, networking = pcall(function()
+                return ReplicatedStorage:WaitForChild("Packages", 2):WaitForChild("Networking", 2)
+            end)
+            if ok and networking then
+                local obj = networking:FindFirstChild(name)
+                if obj then return obj end
+            end
+            return ReplicatedStorage:FindFirstChild(name, true)
+        end
 
-        CkTab:Section({ Title = "Character" })
-        Fk.togSpeedBoost = CkTab:Toggle({ Title = "Speed Boost", Desc = "Change local humanoid WalkSpeed", Icon = "solar:running-bold", Value = h.speedBoost, Callback=function(v) h.speedBoost=v; asaiyaApplySpeed(); x() end })
-        Fk.sliderCharSpeed = CkTab:Slider({ Title = "Speed", Desc = "Speed Boost value", Step = 1, Value = { Min = 16, Max = 150, Default = h.speedBoostValue or 32 }, Callback=function(v) h.speedBoostValue=v; if h.speedBoost then asaiyaApplySpeed() end; x() end })
-        Fk.togInvisible = CkTab:Toggle({ Title = "Invisibility", Desc = "Local character transparency", Icon = "eye-off", Value = h.invisible, Callback=function(v) h.invisible=v; asaiyaApplyInvisibility(); x() end })
-        Fk.togGodmode = CkTab:Toggle({ Title = "Godmode", Desc = "Existing character protection from exploit.lua", Icon = "solar:shield-check-bold", Value = h.godmode, Callback=function(v) if v then enableasaiyaGodmode() else disableasaiyaGodmode() end; h.godmode=v; x() end })
-        Fk.btnUnstick = CkTab:Button({ Title = "Unstick", Desc = "Clear movement locks", Icon = "solar:exit-bold", Callback=function() pcall(M4); pcall(C4); pcall(D4) end })
+        local function invisDoffTools(character)
+            local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+            local backpack = LocalPlayer:FindFirstChildOfClass("Backpack")
+            if humanoid then pcall(humanoid.UnequipTools, humanoid) end
+            if backpack and character then
+                for _, child in ipairs(character:GetChildren()) do
+                    if child:IsA("Tool") then
+                        pcall(function() child.Parent = backpack end)
+                    end
+                end
+            end
+        end
 
-        Ok:Section({ Title = "Auto Steal Preferences" })
-        Fk.dropStealMethod = Ok:Dropdown({ Title = "Auto Steal Method", Desc = "Choose how the script reaches the target", Values = {"Tween","Teleport"}, Value = h.stealMethod or "Tween", Multi = false, Callback=function(v)
-            if type(v)=="table" then v=v[1] or v.Value or v.Title end
-            v=tostring(v or "Tween"); h.stealMethod=(v=="Teleport" and "Teleport" or "Tween"); x()
-            if (h.pureTweenFarm or h.autoFarmLoop) then T4(h.stealMethod=="Teleport" and "WARP" or "TWEEN") end
-        end })
-        Fk.dropReturnMethod = Ok:Dropdown({ Title = "Auto Return Method", Desc = "Fly above the ground or instantly teleport home", Values = {"Fly","Teleport"}, Value = h.returnMethod or "Fly", Multi = false, Callback=function(v)
-            if type(v)=="table" then v=v[1] or v.Value or v.Title end
-            h.returnMethod=(tostring(v)=="Teleport" and "Teleport" or "Fly"); x()
-        end })
-        Fk.sliderSpeed = Ok:Slider({ Title = "Tween Speed", Desc = "Movement speed for Tween/Fly mode", Step = 25, Value = { Min = 100, Max = 1000, Default = h.glideSpeed or 600 }, Callback=function(v) h.glideSpeed=v; Y(v) end })
-        Fk.togAlwaysSecret = Ok:Toggle({ Title = "Always Target Secret+", Desc = "Keep Secret, Eternal and Divine eligible", Icon = "solar:star-bold", Value = h.alwaysCollectSecretPlus, Callback=function(v) h.alwaysCollectSecretPlus=v; x() end })
-        Ok:Section({ Title = "Target Zones" })
-        local zones={"Light Dark","Titan Temple","Cherry Blossom","Cosmic","Prehistoric","Abyss Ocean","Volcano","Snow","Jungle","Desert","Lake","Forest"}
-        local zoneValues={}; for _,v in ipairs(zones) do zoneValues[#zoneValues+1]=v end
-        local selectedZones={}; for z,v in pairs(h.selectedZones or {}) do if v then selectedZones[#selectedZones+1]=z end end
-        Fk.dropTargetZones = Ok:Dropdown({ Title = "Zones", Desc = "Select which zones Auto Steal may target", Values = zoneValues, Value = selectedZones, Multi = true, Callback=function(v)
-            local out={}; if type(v)=="table" then for k,val in pairs(v) do if val==true and type(k)=="string" then out[k]=true elseif type(val)=="string" then out[val]=true end end elseif type(v)=="string" then out[v]=true end
-            h.selectedZones=out; x()
-        end })
-        Ok:Section({ Title = "Target Rarities" })
-        local rarityValues={"Divine","Eternal","Secret","Cosmic","Mythic","Legendary","Epic","Rare","Uncommon","Common"}
-        local selectedRarities={}; for z,v in pairs(h.selectedRarities or {}) do if v then selectedRarities[#selectedRarities+1]=z end end
-        Fk.dropTargetRarities = Ok:Dropdown({ Title = "Rarities", Desc = "Select which rarities Auto Steal may target", Values = rarityValues, Value = selectedRarities, Multi = true, Callback=function(v)
-            local out={}; if type(v)=="table" then for k,val in pairs(v) do if val==true and type(k)=="string" then out[k]=true elseif type(val)=="string" then out[val]=true end end elseif type(v)=="string" then out[v]=true end
-            h.selectedRarities=out; x()
-        end })
+        local function invisKill(character)
+            local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+            if not character or not humanoid then return false end
+            invisDoffTools(character)
+            local doff = invisFindRemote("RF/Treadmill/AskDoff")
+            if doff and doff:IsA("RemoteFunction") then
+                for _ = 1, 2 do pcall(doff.InvokeServer, doff) end
+            end
+            pcall(function()
+                humanoid:SetStateEnabled(Enum.HumanoidStateType.Dead, true)
+                humanoid.BreakJointsOnDeath = true
+                humanoid.RequiresNeck = true
+                humanoid.Health = 0
+            end)
+            pcall(function() humanoid:ChangeState(Enum.HumanoidStateType.Dead) end)
+            pcall(function() character:BreakJoints() end)
+            local wipe = invisFindRemote("RE/RigSync/AskRigWipe")
+            if wipe and wipe:IsA("RemoteEvent") then
+                pcall(wipe.FireServer, wipe, character)
+            end
+            return true
+        end
 
-        Tk:Section({ Title = "Connection" })
-        Fk.togAutoRejoin = Tk:Toggle({ Title = "Auto Rejoin", Desc = "Attempt to rejoin after a teleport/error disconnect", Icon = "solar:restart-bold", Value = h.autoRejoin, Callback=function(v) asaiyaSetAutoRejoin(v); x() end })
-        Fk.togAutoHop = Tk:Toggle({ Title = "Server Hop", Desc = "Rotate through public servers", Icon = "server", Value = h.autoHop, Callback=function(v) h.autoHop=v; x() end })
-        Fk.sliderMaxHops = Tk:Slider({ Title = "Max Hops", Step = 1, Value = { Min = 1, Max = 100, Default = h.maxHops or 15 }, Callback=function(v) h.maxHops=v end })
-        Fk.sliderHopDelay = Tk:Slider({ Title = "Hop Delay", Step = 1, Value = { Min = 5, Max = 120, Default = h.hopDelay or 20 }, Callback=function(v) h.hopDelay=v end })
-        Fk.btnHopNow = Tk:Button({ Title = "Hop Now", Desc = "Teleport to another public server", Icon = "log-out", Callback=function() task.spawn(asaiyaHopNow) end })
-        Fk.btnRejoin = Tk:Button({ Title = "Rejoin Server", Desc = "Rejoin this server immediately", Icon = "solar:logout-2-bold", Callback=function() pcall(function() TeleportService:TeleportToPlaceInstance(game.PlaceId, game.JobId, o) end) end })
-        Fk.btnUnload = Tk:Button({ Title = "Unload", Desc = "Stop loops and remove the UI", Icon = "solar:trash-bin-trash-bold", Callback=function() aM() end })
+        local function invisApply(character)
+            if not invisEnabled or invisApplying or not character or not character.Parent then return false end
+            local humanoid = character:FindFirstChildOfClass("Humanoid")
+            local root = character:FindFirstChild("HumanoidRootPart")
+            local head = character:FindFirstChild("Head")
+            if not humanoid or not root or not head or humanoid.Health <= 0 then return false end
+            invisApplying = true
+            invisDoffTools(character)
+            local hipHeight = humanoid.HipHeight
+            pcall(function() humanoid.HipHeight = 999 end)
+            for _, child in ipairs(character:GetChildren()) do
+                if child:IsA("Accessory") or (child:IsA("BasePart") and child ~= root) then
+                    pcall(function() child.Parent = nil end)
+                end
+            end
+            task.wait(0.12)
+            if not invisEnabled or not character.Parent or not root.Parent then
+                pcall(function() humanoid.HipHeight = hipHeight end)
+                invisApplying = false
+                return false
+            end
+            pcall(function() humanoid.HipHeight = hipHeight end)
+            local oldWrist = root:FindFirstChild("RightWrist")
+            if oldWrist then pcall(oldWrist.Destroy, oldWrist) end
+            local oldHand = character:FindFirstChild("RightHand")
+            if oldHand then pcall(oldHand.Destroy, oldHand) end
+            local wrist = Instance.new("Motor6D")
+            wrist.Name = "RightWrist"
+            wrist.C0 = CFrame.new(1.2, 0, 0)
+            wrist.C1 = CFrame.new()
+            wrist.Part0 = root
+            local hand = Instance.new("Part")
+            hand.Name = "RightHand"
+            hand.Size = Vector3.new(0.2, 0.2, 0.2)
+            hand.Transparency = 1
+            hand.CanCollide = false
+            hand.CanTouch = false
+            hand.CanQuery = false
+            hand.Massless = true
+            hand.CFrame = root.CFrame * wrist.C0
+            wrist.Part1 = hand
+            wrist.Parent = root
+            hand.Parent = character
+            pcall(function() root.CanCollide = false end)
+            character:SetAttribute("InvisApplied", true)
+            task.delay(0.2, function()
+                if root and root.Parent then pcall(function() root.CanCollide = true end) end
+            end)
+            invisApplying = false
+            return true
+        end
+
+        local function invisStart()
+            invisEnabled = true
+            h.invisible = true
+            x()
+            if invisRespawnConn then invisRespawnConn:Disconnect() end
+            invisRespawnConn = LocalPlayer.CharacterAdded:Connect(function(character)
+                if not invisEnabled then return end
+                task.spawn(function()
+                    for _ = 1, 100 do
+                        if not invisEnabled or not character.Parent then return end
+                        local hum = character:FindFirstChildOfClass("Humanoid")
+                        local root = character:FindFirstChild("HumanoidRootPart")
+                        local head = character:FindFirstChild("Head")
+                        if hum and root and head and hum.Health > 0 then break end
+                        task.wait(0.05)
+                    end
+                    if invisEnabled then invisApply(character) end
+                end)
+            end)
+            local character = LocalPlayer.Character
+            if character and not character:GetAttribute("InvisApplied") then
+                task.spawn(function()
+                    if invisKill(character) then task.wait(0.25) end
+                end)
+            end
+        end
+
+        local function invisStop()
+            invisEnabled = false
+            h.invisible = false
+            x()
+            if invisRespawnConn then
+                invisRespawnConn:Disconnect()
+                invisRespawnConn = nil
+            end
+            local character = LocalPlayer.Character
+            local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+            if humanoid and humanoid.Health > 0 then
+                pcall(function() humanoid.Health = 0 end)
+            end
+        end
+
+        Fk.togInvisible = Tk:Toggle({
+            [ "Title" ]= "Invisibility",
+            [ "Desc" ]= "Makes you invisible to other players",
+            [ "Icon" ]= "solar:eye-closed-bold",
+            [ "Value" ]= invisEnabled,
+            [ "Callback" ]= function(e,...)
+                if e then
+                    invisStart()
+                    j({[ "Title" ]= "Invisibility", [ "Content" ]= "Invisibility enabled", [ "Icon" ]= "check-circle" })
+                else
+                    invisStop()
+                    j({[ "Title" ]= "Invisibility", [ "Content" ]= "Invisibility disabled", [ "Icon" ]= "x-circle" })
+                end
+            end
+        })
+        -- ===== End Invisibility =====
+
+        Tk:Section({[ "Title" ]= "System" })
+        Fk.togAntiAFK =Tk:Toggle({[ "Title" ]=(P.Settings and P.Settings.AntiAFKTitle )or "Anti AFK" ,[ "Desc" ]=(P.Settings and P.Settings.AntiAFKDesc )or "Prevent being kicked for inactivity" ;
+        [ "Icon" ]= "solar:shield-check-bold" ;
+        [ "Value" ]=h.antiAFK ,[ "Callback" ]=function(e,...) h.antiAFK =e x()
+            if e then
+                bk()
+            else
+                Ak()
+            end
+            local r=Gk[Xk]or Gk.EN j({[ "Title" ]= "Anti AFK" ,[ "Content" ]=e and((r.Notifications.AntiAFKStarted or "Anti AFK enabled" ))or(r.Notifications.AntiAFKStopped or "Anti AFK disabled" ),[ "Icon" ]=e and "check-circle" or "x-circle" })
+        end
+        })
+        Fk.btnRejoin =Tk:Button({[ "Title" ]=P.Settings.RejoinTitle ;
+        [ "Desc" ]=P.Settings.RejoinDesc ;
+        [ "Icon" ]= "solar:logout-2-bold" ,[ "Callback" ]=function(...) pcall(function(...) TeleportService:TeleportToPlaceInstance(game.PlaceId,game.JobId,o)
+            end
+            )
+        end
+        })
+        Fk.btnUnload =Tk:Button({[ "Title" ]=P.Settings.UnloadTitle ,[ "Desc" ]=P.Settings.UnloadDesc ;
+        [ "Icon" ]= "solar:trash-bin-trash-bold" ,[ "Callback" ]=function(...) aM()
+        end
+        })
+
+        -- ===== ADDED UI (does not replace existing) =====
+        hk:Section({ Title = "Manual" })
+        Fk.btnHatchOnce = hk:Button({
+            Title = "Hatch Once",
+            Desc = "Hatch ready eggs once",
+            Icon = "egg",
+            Callback = function()
+                task.spawn(function()
+                    pcall(function()
+                        if type(v4) == "function" then
+                            v4()
+                        end
+                    end)
+                    j({ Title = "Hatch", Content = "Hatch pass fired", Icon = "check" })
+                end)
+            end,
+        })
+        Fk.btnPlaceOnce = hk:Button({
+            Title = "Place Once",
+            Desc = "Return and place carried eggs",
+            Icon = "package",
+            Callback = function()
+                task.spawn(function()
+                    pcall(function()
+                        h.statusText = "[Manual] Depositing eggs..."
+                        if type(g4) == "function" then
+                            g4(h.glideSpeed)
+                        end
+                        if type(v4) == "function" then
+                            v4()
+                        end
+                        if type(u4) == "function" then
+                            u4()
+                        end
+                        h.isReturning = false
+                        h.delivering = false
+                    end)
+                    if h.webhookOnSteal then
+                        asaiyaWebhook("Place", "Manual place cycle completed.")
+                    end
+                end)
+            end,
+        })
+
+        Ok:Section({ Title = "Vision" })
+        Fk.togEggESP = Ok:Toggle({
+            Title = "Egg ESP",
+            Desc = "HUD markers · rarity hierarchy · distance",
+            Icon = "eye",
+            Value = h.eggESP == true,
+            Callback = function(state)
+                h.eggESP = state and true or false
+                if state then
+                    asaiyaEspStart()
+                    j({ Title = "Egg ESP", Content = "HUD online", Icon = "eye" })
+                else
+                    asaiyaEspStop()
+                    j({ Title = "Egg ESP", Content = "HUD offline", Icon = "eye-off" })
+                end
+            end,
+        })
+
+        MkTab:Section({ Title = "Server" })
+        Fk.togAutoHop = MkTab:Toggle({
+            Title = "Auto Hop",
+            Desc = "Rotate public servers",
+            Icon = "server",
+            Value = false,
+            Callback = function(state)
+                h.autoHop = state and true or false
+                if state then
+                    j({ Title = "Server Hop", Content = string.format("%d / %d hops used", h.hopCount or 0, h.maxHops or 15), Icon = "server" })
+                end
+            end,
+        })
+        Fk.sliderMaxHops = MkTab:Slider({
+            Title = "Max Hops",
+            Step = 1,
+            Value = { Min = 1, Max = 100, Default = h.maxHops or 15 },
+            Callback = function(v)
+                h.maxHops = v
+            end,
+        })
+        Fk.sliderHopDelay = MkTab:Slider({
+            Title = "Hop Delay",
+            Step = 1,
+            Value = { Min = 5, Max = 120, Default = h.hopDelay or 20 },
+            Callback = function(v)
+                h.hopDelay = v
+            end,
+        })
+        Fk.btnHopNow = MkTab:Button({
+            Title = "Hop Now",
+            Desc = "Teleport to another public server",
+            Icon = "log-out",
+            Callback = function()
+                task.spawn(function()
+                    local ok = asaiyaHopNow()
+                    j({ Title = "Server Hop", Content = ok and "Teleporting…" or "No open server", Icon = "server" })
+                end)
+            end,
+        })
+        Fk.btnResetHops = MkTab:Button({
+            Title = "Reset Hop Count",
+            Callback = function()
+                h.hopCount = 0
+                j({ Title = "Server Hop", Content = "Hop count reset", Icon = "refresh-cw" })
+            end,
+        })
 
         MkTab:Section({ Title = "Performance" })
-        Fk.sliderFpsCap = MkTab:Slider({ Title = "FPS Cap", Desc = "Executor FPS cap (when supported)", Step = 5, Value = { Min = 15, Max = 240, Default = h.fpsCap or 60 }, Callback=function(v) asaiyaSetFPSCap(v) end })
-        Fk.togOptimizer = MkTab:Toggle({ Title = "Optimizer", Desc = "Use the existing FPS-saving renderer optimizer", Icon = "gauge", Value = h.optimizer, Callback=function(v) h.optimizer=v; if v then Mk() else Ik() end; x() end })
-        Fk.togAntiAFK = MkTab:Toggle({ Title = "Anti AFK", Desc = "Prevent inactivity kick", Icon = "solar:shield-check-bold", Value = h.antiAFK, Callback=function(v) h.antiAFK=v; if v then bk() else Ak() end; x() end })
-        MkTab:Section({ Title = "Status" })
-        Fk.btnStatus = MkTab:Button({ Title = "Current State", Desc = "Tap to show the latest automation status", Icon = "info", Callback=function() j({Title="Status",Content=tostring(h.statusText or "Ready"),Icon="info"}) end })
+        Fk.togFpsBoost = MkTab:Toggle({
+            Title = "FPS Boost",
+            Desc = "Strip particles / shadows / water",
+            Icon = "gauge",
+            Value = h.performanceMode == true,
+            Callback = function(state)
+                if state then
+                    Mk()
+                    j({ Title = "FPS", Content = "Boost on", Icon = "gauge" })
+                else
+                    Ik()
+                    j({ Title = "FPS", Content = "Restored", Icon = "gauge" })
+                end
+            end,
+        })
 
-        -- Compatibility: keep the old farm controller's internal state synchronized with the new UI.
-        task.spawn(function()
-            while h and h.alive do
-                if h.autoScramble then asaiyaScrambleStep() end
-                if h.autoUpgradeBase then asaiyaAutoUpgradeBase() end
-                if h.speedBoost then asaiyaApplySpeed() end
-                if h.invisible then asaiyaApplyInvisibility() end
-                task.wait(2)
-            end
-        end)
+        MkTab:Section({ Title = "Webhook" })
+        Fk.togWebhook = MkTab:Toggle({
+            Title = "Webhook Alerts",
+            Desc = "asaiya monochrome Discord embeds",
+            Icon = "bell",
+            Value = false,
+            Callback = function(state)
+                h.webhookEnabled = state and true or false
+                if state and (h.webhookUrl or "") ~= "" then
+                    asaiyaWebhook("Online", "Webhook linked to [WORST] - Asaiya.")
+                end
+            end,
+        })
+        Fk.inputWebhook = MkTab:Input({
+            Title = "Webhook URL",
+            Placeholder = "https://discord.com/api/webhooks/…",
+            Value = h.webhookUrl or "",
+            Callback = function(text)
+                h.webhookUrl = tostring(text or "")
+            end,
+        })
+        Fk.togWebhookSteal = MkTab:Toggle({
+            Title = "Alert on Place",
+            Value = true,
+            Callback = function(state)
+                h.webhookOnSteal = state and true or false
+            end,
+        })
+        Fk.togWebhookHop = MkTab:Toggle({
+            Title = "Alert on Hop",
+            Value = true,
+            Callback = function(state)
+                h.webhookOnHop = state and true or false
+            end,
+        })
+        Fk.btnWebhookTest = MkTab:Button({
+            Title = "Test Webhook",
+            Icon = "send",
+            Callback = function()
+                h.webhookEnabled = true
+                asaiyaWebhook("Test", "steal an egg script webhook is working rn", {
+                    { name = "Style", value = "Monochrome embed", inline = true },
+                    { name = "Hub", value = "[WORST] - Asaiya", inline = true },
+                })
+                j({ Title = "Webhook", Content = "steal an egg script webhook is working rn", Icon = "send" })
+            end,
+        })
 
-        -- Keep executor-side FPS cap and requested startup settings applied.
-        asaiyaSetFPSCap(h.fpsCap or 60)
-        asaiyaSetAutoRejoin(h.autoRejoin == true)
-        if h.optimizer then task.spawn(Mk) end
-        if h.speedBoost then asaiyaApplySpeed() end
-        if h.invisible then asaiyaApplyInvisibility() end
 
         yM()
         e(function() end)
@@ -5823,13 +6068,6 @@ end
         D4()n4()C4()A4()b4(h.godmode == true)z4(e)u4()
     end
 end
-o.CharacterAdded :Connect(function(e,...)
-    task.wait(0.8)
-    if h and h.alive then
-        pcall(asaiyaApplySpeed)
-        pcall(asaiyaApplyInvisibility)
-    end
-end)
 )
 if h.performanceMode then
     task.spawn (Mk)
