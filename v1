@@ -844,8 +844,8 @@ H4=function(e,...)
         )
     end
 end
-if typeof(hookmetamethod)== "function" and not _G._NyxAntiRagdollHooked then
-    _G._NyxAntiRagdollHooked = true
+if typeof(hookmetamethod)== "function" and not _G._asaiyaAntiRagdollHooked then
+    _G._asaiyaAntiRagdollHooked = true
     local e e=hookmetamethod(game, "__newindex" ,safeNewCClosure(function(r,y,u,...)
         if not executorCheckCaller()and typeof(r)== "Instance" then
             if r:IsA( "Motor6D" )and(y== "Enabled" and u== false )then
@@ -1274,10 +1274,10 @@ b4=function(e,...) h.godmode =e
     end
     Z4(r)
 end
-local function enableNyxGodmode()
+local function enableasaiyaGodmode()
     b4(true)
 end
-local function disableNyxGodmode()
+local function disableasaiyaGodmode()
     b4(false)
 end
 
@@ -3860,7 +3860,7 @@ local function fk(e,...) pcall(function(...)
     end
     )
 end
-local _nyxFpsSnap = nil
+local _asaiyaFpsSnap = nil
 local function Mk(...)
     -- stop any previous strip loop first
     h.performanceMode = false
@@ -3871,8 +3871,8 @@ local function Mk(...)
     h.performanceMode = true
     pcall(function()
         local lighting = game:GetService("Lighting")
-        if not _nyxFpsSnap then
-            _nyxFpsSnap = {
+        if not _asaiyaFpsSnap then
+            _asaiyaFpsSnap = {
                 GlobalShadows = lighting.GlobalShadows,
                 FogEnd = lighting.FogEnd,
                 Brightness = lighting.Brightness,
@@ -3882,7 +3882,7 @@ local function Mk(...)
             }
             pcall(function()
                 if settings and settings().Rendering then
-                    _nyxFpsSnap.Quality = settings().Rendering.QualityLevel
+                    _asaiyaFpsSnap.Quality = settings().Rendering.QualityLevel
                 end
             end)
         end
@@ -3942,15 +3942,15 @@ local function Ik(...)
     end
     pcall(function()
         local lighting = game:GetService("Lighting")
-        if _nyxFpsSnap then
-            lighting.GlobalShadows = _nyxFpsSnap.GlobalShadows
-            lighting.FogEnd = _nyxFpsSnap.FogEnd
-            lighting.Brightness = _nyxFpsSnap.Brightness
-            lighting.ClockTime = _nyxFpsSnap.ClockTime
-            lighting.OutdoorAmbient = _nyxFpsSnap.OutdoorAmbient
+        if _asaiyaFpsSnap then
+            lighting.GlobalShadows = _asaiyaFpsSnap.GlobalShadows
+            lighting.FogEnd = _asaiyaFpsSnap.FogEnd
+            lighting.Brightness = _asaiyaFpsSnap.Brightness
+            lighting.ClockTime = _asaiyaFpsSnap.ClockTime
+            lighting.OutdoorAmbient = _asaiyaFpsSnap.OutdoorAmbient
             pcall(function()
-                if settings and settings().Rendering and _nyxFpsSnap.Quality ~= nil then
-                    settings().Rendering.QualityLevel = _nyxFpsSnap.Quality
+                if settings and settings().Rendering and _asaiyaFpsSnap.Quality ~= nil then
+                    settings().Rendering.QualityLevel = _asaiyaFpsSnap.Quality
                 end
             end)
         else
@@ -4084,7 +4084,7 @@ local function Zk(e,...)
     end
     return table.concat (u)
 end
-local zk= "Nyx_Hub_Icon.png"
+local zk= "asaiya_Hub_Icon.png"
 local dk= "rbxassetid://10734950309" pcall(function(...)
     if writefile and((getcustomasset or getsynasset))then
         local e=getcustomasset or getsynasset
@@ -4210,44 +4210,44 @@ local Gk={[ "EN" ]={[ "StatusTagReady" ]= "Ready" ,[ "Tabs" ]={[ "Farm" ]= "Main
 [ "LangSwitched" ]= "" }}}
 
 -- ============================================================
--- ADDED FEATURES: Egg ESP (HUD), Server Hop, Webhook (NYX style)
+-- ADDED FEATURES: Egg ESP (HUD), Server Hop, Webhook (asaiya style)
 -- Does not replace existing farm / treadmill / place logic
 -- ============================================================
-local NyxESP = {
+local asaiyaESP = {
 	folder = nil,
 	cache = {},
 	conn = nil,
 	lastScan = 0,
 }
 
-local function nyxEnsureEspFolder()
-	if NyxESP.folder and NyxESP.folder.Parent then
-		return NyxESP.folder
+local function asaiyaEnsureEspFolder()
+	if asaiyaESP.folder and asaiyaESP.folder.Parent then
+		return asaiyaESP.folder
 	end
 	local parent = workspace.CurrentCamera or workspace
 	local f = Instance.new("Folder")
 	-- neutral name (anti-string scan)
 	f.Name = "fx_cache"
 	f.Parent = parent
-	NyxESP.folder = f
+	asaiyaESP.folder = f
 	return f
 end
 
-local function nyxEspClear()
-	for uid, entry in pairs(NyxESP.cache) do
+local function asaiyaEspClear()
+	for uid, entry in pairs(asaiyaESP.cache) do
 		pcall(function()
 			if entry.highlight then entry.highlight:Destroy() end
 			if entry.billboard then entry.billboard:Destroy() end
 			if entry.arrow then entry.arrow:Destroy() end
 		end)
-		NyxESP.cache[uid] = nil
+		asaiyaESP.cache[uid] = nil
 	end
-	if NyxESP.folder then
-		pcall(function() NyxESP.folder:ClearAllChildren() end)
+	if asaiyaESP.folder then
+		pcall(function() asaiyaESP.folder:ClearAllChildren() end)
 	end
 end
 
-local function nyxRarityColor(rarity)
+local function asaiyaRarityColor(rarity)
 	local t = tostring(rarity or "Common")
 	-- monochrome hierarchy: higher rarity = brighter white
 	local rank = ({
@@ -4259,11 +4259,11 @@ local function nyxRarityColor(rarity)
 	return Color3.fromRGB(v, v, v), rank
 end
 
-local function nyxEspAttach(uid, worldPos, rarity, areaName)
+local function asaiyaEspAttach(uid, worldPos, rarity, areaName)
 	if not worldPos then return end
-	local folder = nyxEnsureEspFolder()
-	local entry = NyxESP.cache[uid]
-	local color, rank = nyxRarityColor(rarity)
+	local folder = asaiyaEnsureEspFolder()
+	local entry = asaiyaESP.cache[uid]
+	local color, rank = asaiyaRarityColor(rarity)
 
 	if not entry then
 		-- anchor part (invisible)
@@ -4358,7 +4358,7 @@ local function nyxEspAttach(uid, worldPos, rarity, areaName)
 			accent = accent,
 			rank = rank,
 		}
-		NyxESP.cache[uid] = entry
+		asaiyaESP.cache[uid] = entry
 	end
 
 	entry.part.Position = worldPos
@@ -4374,7 +4374,7 @@ local function nyxEspAttach(uid, worldPos, rarity, areaName)
 	pcall(function() entry.billboard.StudsOffset = Vector3.new(0, 1.8 + (rank or 0) * 0.35, 0) end)
 end
 
-local function nyxEggPos(rec)
+local function asaiyaEggPos(rec)
 	if type(rec) ~= "table" then return nil end
 	if typeof(rec.BoundsCFrame) == "CFrame" then return rec.BoundsCFrame.Position end
 	if typeof(rec.BottomCFrame) == "CFrame" then return rec.BottomCFrame.Position end
@@ -4393,15 +4393,15 @@ local function nyxEggPos(rec)
 	return nil
 end
 
-local function nyxEspScan()
+local function asaiyaEspScan()
 	if not h or not h.eggESP then
 		return
 	end
 	local now = os.clock()
-	if now - (NyxESP.lastScan or 0) < 1.0 then
+	if now - (asaiyaESP.lastScan or 0) < 1.0 then
 		return
 	end
-	NyxESP.lastScan = now
+	asaiyaESP.lastScan = now
 
 	local seen = {}
 
@@ -4418,12 +4418,12 @@ local function nyxEspScan()
 				local uid = rec.Uid or rec.uid or rec.Id
 				local state = rec.State or rec.state
 				if uid and state ~= "Carried" and state ~= 2 then
-					local pos = nyxEggPos(rec)
+					local pos = asaiyaEggPos(rec)
 					-- X gate only when we have a valid world position past highway
 					if pos then
 						local rarity = rec.Rarity or rec.AssetCategory or rec.Category or "Common"
 						local area = rec.AreaId or rec.Area or ""
-						nyxEspAttach(tostring(uid), pos, rarity, area)
+						asaiyaEspAttach(tostring(uid), pos, rarity, area)
 						seen[tostring(uid)] = true
 					end
 				end
@@ -4444,7 +4444,7 @@ local function nyxEspScan()
 					if not seen[uid] then
 						local rarity = model:GetAttribute("Rarity") or model:GetAttribute("RarityTier") or model:GetAttribute("Category") or model:GetAttribute("AssetCategory") or "Common"
 						local area = model:GetAttribute("AreaId") or model:GetAttribute("Area") or ""
-						nyxEspAttach(uid, pivot.Position, rarity, area)
+						asaiyaEspAttach(uid, pivot.Position, rarity, area)
 						seen[uid] = true
 					end
 				end
@@ -4452,46 +4452,46 @@ local function nyxEspScan()
 		end
 	end)
 
-	for uid, entry in pairs(NyxESP.cache) do
+	for uid, entry in pairs(asaiyaESP.cache) do
 		if not seen[uid] then
 			pcall(function()
 				if entry.part then entry.part:Destroy() end
 			end)
-			NyxESP.cache[uid] = nil
+			asaiyaESP.cache[uid] = nil
 		end
 	end
 end
 
-local function nyxEspStart()
-	if NyxESP.conn then return end
-	nyxEnsureEspFolder()
+local function asaiyaEspStart()
+	if asaiyaESP.conn then return end
+	asaiyaEnsureEspFolder()
 	-- Background loop (does not compete with Auto Steal Heartbeat movement)
-	NyxESP.conn = true
+	asaiyaESP.conn = true
 	task.spawn(function()
-		while NyxESP.conn and h and h.alive do
+		while asaiyaESP.conn and h and h.alive do
 			if h.eggESP then
-				pcall(nyxEspScan)
+				pcall(asaiyaEspScan)
 			end
 			task.wait(1.0)
 		end
 	end)
-	task.defer(function() pcall(nyxEspScan) end)
+	task.defer(function() pcall(asaiyaEspScan) end)
 end
 
-local function nyxEspStop()
-	NyxESP.conn = nil
-	nyxEspClear()
+local function asaiyaEspStop()
+	asaiyaESP.conn = nil
+	asaiyaEspClear()
 end
 
--- Webhook — NYX monochrome embed style (not the usual colorful bot style)
-local function nyxWebhook(title, description, fields)
+-- Webhook — asaiya monochrome embed style (not the usual colorful bot style)
+local function asaiyaWebhook(title, description, fields)
 	if not h.webhookEnabled then return end
 	local url = tostring(h.webhookUrl or "")
 	if url == "" or not string.find(url, "discord.com/api/webhooks") then
 		return
 	end
 	local embed = {
-		title = "NYX · " .. tostring(title or "Event"),
+		title = "asaiya · " .. tostring(title or "Event"),
 		description = tostring(description or ""),
 		color = 0xE8E8E8, -- near-white accent
 		footer = { text = "[WORST] - Asaiya · Steal an Egg" },
@@ -4501,7 +4501,7 @@ local function nyxWebhook(title, description, fields)
 		embed.fields = fields
 	end
 	local payload = a:JSONEncode({
-		username = "NYX",
+		username = "asaiya",
 		avatar_url = "",
 		embeds = { embed },
 	})
@@ -4526,7 +4526,7 @@ local function nyxWebhook(title, description, fields)
 end
 
 -- Server hop
-local function nyxHopNow()
+local function asaiyaHopNow()
 	local ok, servers = pcall(function()
 		local cursor = ""
 		local url = string.format(
@@ -4553,7 +4553,7 @@ local function nyxHopNow()
 	local pick = candidates[math.random(1, #candidates)]
 	h.hopCount = (h.hopCount or 0) + 1
 	if h.webhookOnHop then
-		nyxWebhook("Server Hop", "Teleporting to a new public server.", {
+		asaiyaWebhook("Server Hop", "Teleporting to a new public server.", {
 			{ name = "Hop", value = tostring(h.hopCount) .. " / " .. tostring(h.maxHops or 15), inline = true },
 			{ name = "Job", value = "`" .. tostring(pick):sub(1, 12) .. "…`", inline = true },
 		})
@@ -4572,11 +4572,11 @@ task.spawn(function()
 		elseif h.autoHop then
 			if (h.hopCount or 0) >= (h.maxHops or 15) then
 				h.autoHop = false
-				nyxWebhook("Auto Hop", "Max hops reached — stopped.")
+				asaiyaWebhook("Auto Hop", "Max hops reached — stopped.")
 			else
 				task.wait(math.max(5, h.hopDelay or 20))
 				if h.autoHop then
-					nyxHopNow()
+					asaiyaHopNow()
 				end
 			end
 		end
@@ -4586,7 +4586,7 @@ end)
 
 
 -- Auto Index (does not touch Auto Steal / farm controller)
-local function nyxTryIndex()
+local function asaiyaTryIndex()
 	if not h or not h.autoIndex then return end
 	pcall(function()
 		local names = { "Index", "Codex", "Discover", "Bestiary", "Collection", "UnlockIndex", "ClaimIndex" }
@@ -4631,1587 +4631,1221 @@ task.spawn(function()
 	while true do
 		task.wait(4)
 		if h and h.alive and h.autoIndex then
-			nyxTryIndex()
+			asaiyaTryIndex()
 		end
 	end
 end)
 
 
-
--- ╔══════════════════════════════════════════════════════════════╗
--- ║              AsaiyaHub — Clean Framework Template            ║
--- ║  Rayfield-style API · Auto-saves all flags · Ready to use    ║
--- ╚══════════════════════════════════════════════════════════════╝
---
--- HOW TO ADD A TAB:
---   local MyTab = Window:CreateTab("Tab Name", tabOrder)
---
--- HOW TO ADD ELEMENTS (see each section below for full examples):
---   MyTab:CreateSection("Section Title")
---   MyTab:CreateButton({ ... })
---   MyTab:CreateToggle({ ... })
---   MyTab:CreateSlider({ ... })
---   MyTab:CreateInput({ ... })
---   MyTab:CreateDropdown({ ... })
---   MyTab:CreateParagraph({ ... })
---   MyTab:CreateLabel("Text")
---   MyTab:CreateKeybind({ ... })
---
--- FLAG SYSTEM:
---   Every Toggle, Slider, Input, Dropdown, and Keybind has a "Flag" field.
---   The Flag is a unique string that identifies that element in the save file.
---   Make sure every Flag is DIFFERENT or they will overwrite each other!
---   Example: Flag = "MyScript_AutoFarm"
---
--- AUTO-SAVE:
---   All flags are automatically saved to "AsaiyaHub_Config.json" on your executor.
---   When you re-execute, all saved values are restored and callbacks are re-fired.
---   Buttons and Sections do NOT save (they don't have state).
-
-local ok, err = pcall(function()
-
--- ============================================================
--- SERVICES
--- ============================================================
-local Players           = game:GetService("Players")
-local TweenService      = game:GetService("TweenService")
-local UserInputService  = game:GetService("UserInputService")
-local HttpService       = game:GetService("HttpService")
-local RunService        = game:GetService("RunService")
-local me                = Players.LocalPlayer
-local playerGui         = me:WaitForChild("PlayerGui")
-
--- ============================================================
--- CONFIG SYSTEM (Auto-save/load by Flag)
--- ============================================================
-local CONFIG_FILE = "AsaiyaHub_Config.json"
-local cfg = {}
-
-local function loadConfig()
-    local ok2, data = pcall(function()
-        if readfile then return HttpService:JSONDecode(readfile(CONFIG_FILE)) end
-    end)
-    if ok2 and type(data) == "table" then
-        for k, v in pairs(data) do cfg[k] = v end
-        print("[AsaiyaHub] Config loaded.")
+local Fk={}
+local hk,Ok,Yk,Tk
+local xk={ "Farm" ;
+"EggSelect" ;
+"Settings" }
+local function Wk(e,...)
+    local r=(e== "TH" )
+    if h.delivering then
+        return r and "กำลังวางไข่" or "Placing Egg"
+    elseif h.securingEgg or h.holdingEggForGuard then
+        return r and "กำลังหยิบไข่" or "Securing Egg"
+    elseif h.teleporting then
+        return r and "กำลังวาร์ป" or "Teleporting"
+    elseif h.isReturning then
+        return r and "กำลังบินกลับ" or "Returning"
+    elseif h.glidingToTarget then
+        return r and "กำลังบินไปขโมย" or "Stealing"
+    elseif h.onTreadmill or(L4 and L4())then
+        return r and "อยู่บนลู่วิ่ง" or "On Treadmill"
+    elseif Y4== "TWEEN" and not h.isReturning then
+        return r and "กำลังหาไข่" or "Searching"
+    elseif Y4== "WARP" and not h.isReturning then
+        return r and "กำลังหาไข่" or "Searching"
     else
-        print("[AsaiyaHub] No config found, using defaults.")
+        return r and "พร้อมทำงาน" or "Ready"
     end
 end
-
-local function saveConfig()
-    pcall(function()
-        if writefile then writefile(CONFIG_FILE, HttpService:JSONEncode(cfg)) end
-    end)
-end
-
-loadConfig()
-
--- ============================================================
--- WEBHOOK HELPER
--- ============================================================
-local function httpReq(opts)
-    local fn = (syn and syn.request) or http_request or request or (fluxus and fluxus.request)
-    if not fn then return false end
-    local ok2 = pcall(fn, opts)
-    return ok2
-end
-
-local function sendWebhook(embedData)
-    if not cfg["webhook_url"] or cfg["webhook_url"] == "" then return false end
-    return httpReq({
-        Url     = cfg["webhook_url"],
-        Method  = "POST",
-        Headers = { ["Content-Type"] = "application/json" },
-        Body    = HttpService:JSONEncode({
-            username = "AsaiyaHub",
-            embeds   = { embedData },
-        }),
-    })
-end
-
--- ============================================================
--- THEME
--- ============================================================
-local T = {
-    Background      = Color3.fromRGB(20, 20, 24),
-    Topbar          = Color3.fromRGB(26, 26, 30),
-    Sidebar         = Color3.fromRGB(16, 16, 20),
-    SidebarSelected = Color3.fromRGB(38, 38, 52),
-    SidebarHover    = Color3.fromRGB(28, 28, 38),
-    Element         = Color3.fromRGB(28, 28, 34),
-    ElementHover    = Color3.fromRGB(36, 36, 44),
-    Stroke          = Color3.fromRGB(50, 50, 62),
-    Accent          = Color3.fromRGB(80, 110, 220),
-    AccentHover     = Color3.fromRGB(100, 130, 240),
-    AccentText      = Color3.fromRGB(130, 160, 255),
-    Text            = Color3.fromRGB(225, 225, 235),
-    SubText         = Color3.fromRGB(140, 140, 160),
-    SectionText     = Color3.fromRGB(100, 100, 120),
-    ToggleOn        = Color3.fromRGB(70, 160, 90),
-    ToggleOff       = Color3.fromRGB(55, 55, 65),
-    SliderFill      = Color3.fromRGB(80, 110, 220),
-    SliderBg        = Color3.fromRGB(38, 38, 50),
-    Danger          = Color3.fromRGB(180, 50, 50),
-    NotifBg         = Color3.fromRGB(22, 22, 28),
-}
-
--- ============================================================
--- GUI HELPERS
--- ============================================================
-local function tw(obj, props, t2)
-    TweenService:Create(obj, TweenInfo.new(t2 or 0.2, Enum.EasingStyle.Quart), props):Play()
-end
-local function mk(class, props, parent)
-    local o = Instance.new(class)
-    for k, v in pairs(props) do o[k] = v end
-    if parent then o.Parent = parent end
-    return o
-end
-local function cr(r, p) return mk("UICorner", { CornerRadius = UDim.new(0, r) }, p) end
-local function sk(c, t2, p) return mk("UIStroke", { Color = c, Thickness = t2 or 1, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, p) end
-
-local function mkDrag(frame, handle)
-    local drag, di, ds, sp = false, nil, nil, nil
-    handle.InputBegan:Connect(function(i)
-        if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then
-            drag = true; ds = i.Position; sp = frame.Position
-            i.Changed:Connect(function() if i.UserInputState == Enum.UserInputState.End then drag = false end end)
+local function mk(e,...) pcall(function(...)
+        if e:IsA( "TextLabel" )or e:IsA( "TextButton" )or e:IsA( "TextBox" )then
+            e.AutoLocalize = false
         end
-    end)
-    handle.InputChanged:Connect(function(i)
-        if i.UserInputType == Enum.UserInputType.MouseMovement or i.UserInputType == Enum.UserInputType.Touch then di = i end
-    end)
-    UserInputService.InputChanged:Connect(function(i)
-        if i == di and drag then
-            local d = i.Position - ds
-            frame.Position = UDim2.new(sp.X.Scale, sp.X.Offset + d.X, sp.Y.Scale, sp.Y.Offset + d.Y)
-        end
-    end)
-end
-
--- ============================================================
--- BUILD WINDOW
--- ============================================================
-local WIN_W, WIN_H, TOP_H, SIDE_W = 610, 420, 46, 150
-local sidebarBg, contentArea, footer
-
-local oldGui = playerGui:FindFirstChild("AsaiyaHub")
-if oldGui then oldGui:Destroy() end
-
-local sg = mk("ScreenGui", {
-    Name = "AsaiyaHub", ResetOnSpawn = false, ZIndexBehavior = Enum.ZIndexBehavior.Sibling, DisplayOrder = 999,
-}, playerGui)
-
--- Notification holder
-local notifHolder = mk("Frame", {
-    Name = "Notifs", AnchorPoint = Vector2.new(1, 1),
-    Position = UDim2.new(1, -16, 1, -16), Size = UDim2.new(0, 295, 1, -32),
-    BackgroundTransparency = 1, ZIndex = 300,
-}, sg)
-mk("UIListLayout", { SortOrder = Enum.SortOrder.LayoutOrder, VerticalAlignment = Enum.VerticalAlignment.Bottom, Padding = UDim.new(0, 8) }, notifHolder)
-
--- Main window
-local win = mk("Frame", {
-    Name = "Win", AnchorPoint = Vector2.new(0.5, 0.5),
-    Position = UDim2.new(0.5, 0, 0.5, 0), Size = UDim2.new(0, WIN_W, 0, WIN_H),
-    BackgroundColor3 = T.Background, BorderSizePixel = 0, ClipsDescendants = false,
-}, sg)
-cr(10, win); sk(T.Stroke, 1, win)
-
-local innerClip = mk("Frame", { Size = UDim2.new(1,0,1,0), BackgroundTransparency = 1, ClipsDescendants = true, ZIndex = 1 }, win)
-cr(10, innerClip)
-
--- Topbar
-local topbar = mk("Frame", { Size = UDim2.new(1,0,0,TOP_H), BackgroundColor3 = T.Topbar, BorderSizePixel = 0, ZIndex = 5 }, innerClip)
-cr(10, topbar)
-mk("Frame", { Position = UDim2.new(0,0,1,-10), Size = UDim2.new(1,0,0,10), BackgroundColor3 = T.Topbar, BorderSizePixel = 0, ZIndex = 5 }, topbar)
-mk("TextLabel", {
-    Position = UDim2.new(0,14,0,0), Size = UDim2.new(0,220,1,0),
-    BackgroundTransparency = 1, Text = "Asaiya Hub", TextColor3 = T.Text,
-    TextSize = 14, Font = Enum.Font.GothamBold, TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 6,
-}, topbar)
-mk("TextLabel", {
-    Position = UDim2.new(0,165,0,0), Size = UDim2.new(0.4,0,1,0),
-    BackgroundTransparency = 1, Text = "By: Asaiya", TextColor3 = T.SubText,
-    TextSize = 11, Font = Enum.Font.Gotham, TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 6,
-}, topbar)
-
--- Close button
-local closeBtn = mk("TextButton", {
-    AnchorPoint = Vector2.new(1,0.5), Position = UDim2.new(1,-10,0.5,0), Size = UDim2.new(0,26,0,26),
-    BackgroundColor3 = T.Danger, Text = "x", TextColor3 = Color3.new(1,1,1),
-    TextSize = 12, Font = Enum.Font.GothamBold, BorderSizePixel = 0, ZIndex = 7,
-}, topbar)
-cr(6, closeBtn)
-closeBtn.MouseButton1Click:Connect(function() sg:Destroy() end)
-closeBtn.MouseEnter:Connect(function() tw(closeBtn, { BackgroundColor3 = Color3.fromRGB(210,70,70) }, 0.12) end)
-closeBtn.MouseLeave:Connect(function() tw(closeBtn, { BackgroundColor3 = T.Danger }, 0.12) end)
-
--- Minimize button
-local minBtn = mk("TextButton", {
-    AnchorPoint = Vector2.new(1,0.5), Position = UDim2.new(1,-42,0.5,0), Size = UDim2.new(0,26,0,26),
-    BackgroundColor3 = T.Element, Text = "-", TextColor3 = T.SubText,
-    TextSize = 14, Font = Enum.Font.GothamBold, BorderSizePixel = 0, ZIndex = 7,
-}, topbar)
-cr(6, minBtn)
-local minimized = false
-minBtn.MouseButton1Click:Connect(function()
-    minimized = not minimized
-    tw(win, { Size = UDim2.new(0, win.AbsoluteSize.X, 0, minimized and TOP_H or WIN_H) }, 0.3)
-end)
-minBtn.MouseEnter:Connect(function() tw(minBtn, { BackgroundColor3 = T.ElementHover }, 0.12) end)
-minBtn.MouseLeave:Connect(function() tw(minBtn, { BackgroundColor3 = T.Element }, 0.12) end)
-
-mkDrag(win, topbar)
-
--- Body
-local body = mk("Frame", {
-    Position = UDim2.new(0,0,0,TOP_H), Size = UDim2.new(1,0,1,-TOP_H),
-    BackgroundTransparency = 1, ClipsDescendants = true, ZIndex = 2,
-}, innerClip)
-
-sidebarBg = mk("Frame", { Size = UDim2.new(0,SIDE_W,1,0), BackgroundColor3 = T.Sidebar, BorderSizePixel = 0, ZIndex = 2 }, body)
-mk("Frame", { Position = UDim2.new(1,-1,0,0), Size = UDim2.new(0,1,1,0), BackgroundColor3 = T.Stroke, BorderSizePixel = 0, ZIndex = 3 }, sidebarBg)
-
-local sidebar = mk("ScrollingFrame", {
-    Size = UDim2.new(1,0,1,-32), BackgroundTransparency = 1, BorderSizePixel = 0,
-    ScrollBarThickness = 2, ScrollBarImageColor3 = T.Accent,
-    CanvasSize = UDim2.new(0,0,0,0), AutomaticCanvasSize = Enum.AutomaticSize.Y, ZIndex = 3,
-}, sidebarBg)
-mk("UIListLayout", { SortOrder = Enum.SortOrder.LayoutOrder, Padding = UDim.new(0,3) }, sidebar)
-mk("UIPadding", { PaddingTop = UDim.new(0,8), PaddingBottom = UDim.new(0,8), PaddingLeft = UDim.new(0,7), PaddingRight = UDim.new(0,7) }, sidebar)
-
-footer = mk("Frame", {
-    AnchorPoint = Vector2.new(0,1), Position = UDim2.new(0,0,1,0), Size = UDim2.new(0,SIDE_W,0,32),
-    BackgroundColor3 = T.Sidebar, BorderSizePixel = 0, ZIndex = 4,
-}, body)
-mk("Frame", { Size = UDim2.new(1,0,0,1), BackgroundColor3 = T.Stroke, BorderSizePixel = 0, ZIndex = 5 }, footer)
-mk("TextLabel", {
-    Position = UDim2.new(0,10,0,0), Size = UDim2.new(1,-14,1,0),
-    BackgroundTransparency = 1, Text = me.Name, TextColor3 = T.SubText,
-    TextSize = 10, Font = Enum.Font.Gotham, TextXAlignment = Enum.TextXAlignment.Left,
-    TextTruncate = Enum.TextTruncate.AtEnd, ZIndex = 6,
-}, footer)
-
-contentArea = mk("Frame", {
-    Position = UDim2.new(0,SIDE_W,0,0), Size = UDim2.new(1,-SIDE_W,1,0),
-    BackgroundTransparency = 1, ClipsDescendants = false, ZIndex = 2,
-}, body)
-
--- Tab state
-local tabBtns   = {}
-local tabPages  = {}
-local activeTab = nil
-
-local function selectTab(name)
-    if activeTab == name then return end
-    activeTab = name
-    for n, b in pairs(tabBtns) do
-        local sel = (n == name)
-        tw(b.bg,  { BackgroundColor3 = sel and T.SidebarSelected or T.Sidebar, BackgroundTransparency = sel and 0 or 1 }, 0.18)
-        b.lbl.TextColor3 = sel and T.Text or T.SubText
-        tw(b.bar, { BackgroundTransparency = sel and 0 or 1 }, 0.18)
-    end
-    for n, p in pairs(tabPages) do p.Visible = (n == name) end
-end
-
--- ============================================================
--- NOTIFICATION SYSTEM
--- ============================================================
-local function Notify(title, content, dur)
-    task.spawn(function()
-        local notif = mk("Frame", {
-            Size = UDim2.new(1,0,0,0), BackgroundColor3 = T.NotifBg,
-            BackgroundTransparency = 1, BorderSizePixel = 0, ClipsDescendants = true, ZIndex = 300,
-        }, notifHolder)
-        cr(8, notif); sk(T.Stroke, 1, notif)
-        mk("Frame", { Size = UDim2.new(0,3,1,0), BackgroundColor3 = T.Accent, BorderSizePixel = 0, ZIndex = 301 }, notif)
-        local tl = mk("TextLabel", {
-            Position = UDim2.new(0,12,0,8), Size = UDim2.new(1,-22,0,16),
-            BackgroundTransparency = 1, Text = title, TextColor3 = T.Text,
-            TextSize = 12, Font = Enum.Font.GothamBold, TextXAlignment = Enum.TextXAlignment.Left,
-            TextTransparency = 1, ZIndex = 301,
-        }, notif)
-        local cl = mk("TextLabel", {
-            Position = UDim2.new(0,12,0,26), Size = UDim2.new(1,-22,0,30),
-            BackgroundTransparency = 1, Text = content, TextColor3 = T.SubText,
-            TextSize = 11, Font = Enum.Font.Gotham, TextXAlignment = Enum.TextXAlignment.Left,
-            TextWrapped = true, TextTransparency = 1, ZIndex = 301,
-        }, notif)
-        tw(notif, { Size = UDim2.new(1,0,0,64), BackgroundTransparency = 0.1 }, 0.3)
-        task.wait(0.12); tw(tl, { TextTransparency = 0 }, 0.2); tw(cl, { TextTransparency = 0.2 }, 0.2)
-        task.delay(dur or 4, function()
-            tw(notif, { BackgroundTransparency = 1, Size = UDim2.new(1,0,0,0) }, 0.3)
-            tw(tl, { TextTransparency = 1 }, 0.2); tw(cl, { TextTransparency = 1 }, 0.2)
-            task.wait(0.35); pcall(function() notif:Destroy() end)
-        end)
-    end)
-end
-
--- ============================================================
--- DROPDOWN MANAGER
--- ============================================================
-local openDropdowns = {}
-local function closeAllDropdowns()
-    for _, closeFn in pairs(openDropdowns) do pcall(closeFn) end
-    openDropdowns = {}
-end
-
--- ============================================================
--- ══════════════════════════════════════════════════════════
--- WINDOW / TAB API
--- ══════════════════════════════════════════════════════════
--- ============================================================
-local Window = {}
-
---[[
-    HOW TO CREATE A TAB:
-    ─────────────────────────────────────────────
-    local MyTab = Window:CreateTab("Tab Name", orderNumber)
-
-    orderNumber controls the sort order in the sidebar (1 = first, 2 = second, etc.)
-
-    EXAMPLE:
-        local MainTab      = Window:CreateTab("Main", 1)
-        local AutoTab      = Window:CreateTab("Automatics", 2)
-        local SettingsTab  = Window:CreateTab("Settings", 3)
-]]
-function Window:CreateTab(name, order)
-    order = order or 99
-    local bf = mk("Frame", {
-        Name = name, Size = UDim2.new(1,0,0,34), BackgroundTransparency = 1,
-        BorderSizePixel = 0, LayoutOrder = order, ZIndex = 3,
-    }, sidebar)
-    local bg = mk("Frame", { Size = UDim2.new(1,0,1,0), BackgroundColor3 = T.Sidebar, BackgroundTransparency = 1, BorderSizePixel = 0, ZIndex = 3 }, bf)
-    cr(7, bg)
-    local bar = mk("Frame", {
-        AnchorPoint = Vector2.new(0,0.5), Position = UDim2.new(0,0,0.5,0), Size = UDim2.new(0,3,0.55,0),
-        BackgroundColor3 = T.Accent, BackgroundTransparency = 1, BorderSizePixel = 0, ZIndex = 5,
-    }, bf)
-    cr(2, bar)
-    local lbl = mk("TextLabel", {
-        Position = UDim2.new(0,14,0,0), Size = UDim2.new(1,-18,1,0),
-        BackgroundTransparency = 1, Text = name, TextColor3 = T.SubText,
-        TextSize = 12, Font = Enum.Font.Gotham, TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 5,
-    }, bf)
-    local cb = mk("TextButton", { Size = UDim2.new(1,0,1,0), BackgroundTransparency = 1, Text = "", ZIndex = 6 }, bf)
-    cb.MouseEnter:Connect(function() if activeTab ~= name then tw(bg, { BackgroundColor3 = T.SidebarHover, BackgroundTransparency = 0 }, 0.12) end end)
-    cb.MouseLeave:Connect(function() if activeTab ~= name then tw(bg, { BackgroundTransparency = 1 }, 0.12) end end)
-    cb.MouseButton1Click:Connect(function() closeAllDropdowns(); selectTab(name) end)
-    tabBtns[name] = { bg = bg, lbl = lbl, bar = bar }
-
-    local page = mk("ScrollingFrame", {
-        Name = name, Position = UDim2.new(0,0,0,4), Size = UDim2.new(1,0,1,-4),
-        BackgroundTransparency = 1, BorderSizePixel = 0, ScrollBarThickness = 3,
-        ScrollBarImageColor3 = T.Accent, CanvasSize = UDim2.new(0,0,0,0),
-        AutomaticCanvasSize = Enum.AutomaticSize.Y, Visible = false, ZIndex = 3, ClipsDescendants = false,
-    }, contentArea)
-    mk("UIListLayout", { SortOrder = Enum.SortOrder.LayoutOrder, Padding = UDim.new(0,5) }, page)
-    mk("UIPadding", { PaddingTop = UDim.new(0,10), PaddingBottom = UDim.new(0,10), PaddingLeft = UDim.new(0,12), PaddingRight = UDim.new(0,12) }, page)
-    tabPages[name] = page
-    if not activeTab then selectTab(name) end
-
-    -- ── TAB ELEMENT BUILDERS ────────────────────────────────
-    local Tab   = {}
-    local lo    = 0
-    local function nlo() lo = lo + 1; return lo end
-    local function makeRow(h, clip)
-        local row = mk("Frame", {
-            Size = UDim2.new(1,0,0,h or 42), BackgroundColor3 = T.Element,
-            BorderSizePixel = 0, LayoutOrder = nlo(), ZIndex = 4,
-            ClipsDescendants = clip or false,
-        }, page)
-        cr(7, row); sk(T.Stroke, 1, row)
-        return row
-    end
-
-    -- ────────────────────────────────────────────────────────
-    -- SECTION
-    -- ────────────────────────────────────────────────────────
-    --[[
-        USAGE:
-            Tab:CreateSection("Section Title")
-
-        Sections don't have callbacks or flags. They're just visual separators.
-
-        EXAMPLE:
-            AutoTab:CreateSection("Gain Muscle")
-    ]]
-    function Tab:CreateSection(text)
-        local s = mk("Frame", { Size = UDim2.new(1,0,0,24), BackgroundTransparency = 1, LayoutOrder = nlo(), ZIndex = 4 }, page)
-        mk("TextLabel", {
-            Size = UDim2.new(1,0,1,0), BackgroundTransparency = 1,
-            Text = string.upper(text), TextColor3 = T.SectionText,
-            TextSize = 10, Font = Enum.Font.GothamBold, TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 5,
-        }, s)
-        mk("Frame", {
-            AnchorPoint = Vector2.new(0,1), Position = UDim2.new(0,0,1,0),
-            Size = UDim2.new(1,0,0,1), BackgroundColor3 = T.Stroke, BorderSizePixel = 0, ZIndex = 5,
-        }, s)
-    end
-
-    -- ────────────────────────────────────────────────────────
-    -- LABEL
-    -- ────────────────────────────────────────────────────────
-    --[[
-        USAGE:
-            local Label = Tab:CreateLabel("Some text here")
-            Label:Set("New text")   -- update the label text later
-
-        No flag. No auto-save.
-
-        EXAMPLE:
-            local StatusLabel = AutoTab:CreateLabel("Status: Idle")
-            -- later in your code:
-            StatusLabel:Set("Status: Farming")
-    ]]
-    function Tab:CreateLabel(text)
-        local row = makeRow(34)
-        local l = mk("TextLabel", {
-            Position = UDim2.new(0,12,0,0), Size = UDim2.new(1,-24,1,0),
-            BackgroundTransparency = 1, Text = text, TextColor3 = T.SubText,
-            TextSize = 12, Font = Enum.Font.Gotham, TextXAlignment = Enum.TextXAlignment.Left, TextWrapped = true, ZIndex = 5,
-        }, row)
-        local o = {}
-        function o:Set(v) l.Text = v end
-        return o
-    end
-
-    -- ────────────────────────────────────────────────────────
-    -- PARAGRAPH
-    -- ────────────────────────────────────────────────────────
-    --[[
-        USAGE:
-            Tab:CreateParagraph({
-                Title   = "Title here",
-                Content = "Description or info text here. Can be long.",
-            })
-
-        No flag. No auto-save. Just for displaying info.
-    ]]
-    function Tab:CreateParagraph(c2)
-        c2 = c2 or {}
-        local row = makeRow(58)
-        mk("TextLabel", {
-            Position = UDim2.new(0,14,0,8), Size = UDim2.new(1,-28,0,16),
-            BackgroundTransparency = 1, Text = c2.Title or "", TextColor3 = T.Text,
-            TextSize = 12, Font = Enum.Font.GothamBold, TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 5,
-        }, row)
-        mk("TextLabel", {
-            Position = UDim2.new(0,14,0,26), Size = UDim2.new(1,-28,0,28),
-            BackgroundTransparency = 1, Text = c2.Content or "", TextColor3 = T.SubText,
-            TextSize = 11, Font = Enum.Font.Gotham, TextXAlignment = Enum.TextXAlignment.Left, TextWrapped = true, ZIndex = 5,
-        }, row)
-    end
-
-    -- ────────────────────────────────────────────────────────
-    -- BUTTON
-    -- ────────────────────────────────────────────────────────
-    --[[
-        USAGE:
-            local Button = Tab:CreateButton({
-                Name       = "Button Name",      -- text shown on the row
-                ButtonText = "Run",              -- text on the button itself (optional, default "Run")
-                Callback   = function()
-                    -- code runs when button is clicked
-                end,
-            })
-
-            Button:SetText("New Text")  -- change button text later
-
-        No flag. Buttons don't save state.
-
-        EXAMPLE:
-            local RebirthBtn = AutoTab:CreateButton({
-                Name       = "Reborn Now",
-                ButtonText = "Reborn",
-                Callback   = function()
-                    -- fire reborn remote here
-                    print("Reborn!")
-                end,
-            })
-    ]]
-    function Tab:CreateButton(c2)
-        c2 = c2 or {}
-        local row = makeRow(42)
-        mk("TextLabel", {
-            Position = UDim2.new(0,14,0,0), Size = UDim2.new(0.55,0,1,0),
-            BackgroundTransparency = 1, Text = c2.Name or "Button", TextColor3 = T.Text,
-            TextSize = 12, Font = Enum.Font.Gotham, TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 5,
-        }, row)
-        local btn = mk("TextButton", {
-            AnchorPoint = Vector2.new(1,0.5), Position = UDim2.new(1,-12,0.5,0), Size = UDim2.new(0,80,0,27),
-            BackgroundColor3 = T.Accent, Text = c2.ButtonText or "Run", TextColor3 = Color3.new(1,1,1),
-            TextSize = 11, Font = Enum.Font.GothamBold, BorderSizePixel = 0, ZIndex = 5,
-        }, row)
-        cr(6, btn)
-        btn.MouseEnter:Connect(function() tw(btn, { BackgroundColor3 = T.AccentHover }, 0.12) end)
-        btn.MouseLeave:Connect(function() tw(btn, { BackgroundColor3 = T.Accent }, 0.12) end)
-        btn.MouseButton1Click:Connect(function()
-            tw(btn, { Size = UDim2.new(0,74,0,25) }, 0.08)
-            task.delay(0.09, function() tw(btn, { Size = UDim2.new(0,80,0,27) }, 0.14) end)
-            pcall(c2.Callback or function() end)
-        end)
-        row.MouseEnter:Connect(function() tw(row, { BackgroundColor3 = T.ElementHover }, 0.12) end)
-        row.MouseLeave:Connect(function() tw(row, { BackgroundColor3 = T.Element }, 0.12) end)
-        local o = {}
-        function o:SetText(t2) btn.Text = t2 end
-        return o
-    end
-
-    -- ────────────────────────────────────────────────────────
-    -- TOGGLE
-    -- ────────────────────────────────────────────────────────
-    --[[
-        USAGE:
-            local Toggle = Tab:CreateToggle({
-                Name         = "Toggle Name",
-                CurrentValue = false,   -- starting value (true = on, false = off)
-                Flag         = "UniqueFlag1",  -- MUST be unique across all toggles!
-                Callback     = function(Value)
-                    -- Value is true when ON, false when OFF
-                    if Value then
-                        print("Toggled ON")
-                    else
-                        print("Toggled OFF")
-                    end
-                end,
-            })
-
-            Toggle:Set(true)   -- force toggle on from code
-            Toggle:Set(false)  -- force toggle off from code
-            print(Toggle.CurrentValue)  -- get current state
-
-        AUTO-SAVE: The toggle state is saved to the config by its Flag.
-        On re-execute, if it was ON, the Callback fires automatically with true.
-
-        EXAMPLE:
-            local AutoGainToggle = AutoTab:CreateToggle({
-                Name         = "Auto Gain Muscle",
-                CurrentValue = false,
-                Flag         = "AutoFarm_GainMuscle",
-                Callback     = function(Value)
-                    getgenv().GainMuscle = Value
-                    if Value then
-                        task.spawn(function()
-                            while getgenv().GainMuscle do
-                                game:GetService("ReplicatedStorage").RemoteEvent:FireServer({[1]="GainMuscle"})
-                                task.wait(0.45)
-                            end
-                        end)
-                    end
-                end,
-            })
-    ]]
-    function Tab:CreateToggle(c2)
-        c2 = c2 or {}
-        local flag   = c2.Flag or ("toggle_" .. name .. "_" .. (c2.Name or tostring(nlo())))
-        local val    = (cfg[flag] ~= nil) and cfg[flag] or (c2.CurrentValue or false)
-        local row    = makeRow(42)
-        mk("TextLabel", {
-            Position = UDim2.new(0,14,0,0), Size = UDim2.new(0.7,0,1,0),
-            BackgroundTransparency = 1, Text = c2.Name or "Toggle", TextColor3 = T.Text,
-            TextSize = 12, Font = Enum.Font.Gotham, TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 5,
-        }, row)
-        local track = mk("Frame", {
-            AnchorPoint = Vector2.new(1,0.5), Position = UDim2.new(1,-14,0.5,0), Size = UDim2.new(0,44,0,23),
-            BackgroundColor3 = val and T.ToggleOn or T.ToggleOff, BorderSizePixel = 0, ZIndex = 5,
-        }, row)
-        cr(12, track); sk(T.Stroke, 1, track)
-        local knob = mk("Frame", {
-            AnchorPoint = Vector2.new(0,0.5),
-            Position = val and UDim2.new(1,-21,0.5,0) or UDim2.new(0,2,0.5,0),
-            Size = UDim2.new(0,19,0,19), BackgroundColor3 = Color3.new(1,1,1), BorderSizePixel = 0, ZIndex = 6,
-        }, track)
-        cr(10, knob)
-        local inter = mk("TextButton", { Size = UDim2.new(1,0,1,0), BackgroundTransparency = 1, Text = "", ZIndex = 7 }, row)
-        inter.MouseButton1Click:Connect(function()
-            val = not val
-            tw(track, { BackgroundColor3 = val and T.ToggleOn or T.ToggleOff }, 0.18)
-            tw(knob,  { Position = val and UDim2.new(1,-21,0.5,0) or UDim2.new(0,2,0.5,0) }, 0.18)
-            cfg[flag] = val; saveConfig()
-            pcall(c2.Callback or function() end, val)
-        end)
-        row.MouseEnter:Connect(function() tw(row, { BackgroundColor3 = T.ElementHover }, 0.12) end)
-        row.MouseLeave:Connect(function() tw(row, { BackgroundColor3 = T.Element }, 0.12) end)
-        if val and c2.Callback then task.defer(function() pcall(c2.Callback, true) end) end
-        local o = { CurrentValue = val }
-        function o:Set(v)
-            val = v; o.CurrentValue = v
-            tw(track, { BackgroundColor3 = v and T.ToggleOn or T.ToggleOff }, 0.18)
-            tw(knob,  { Position = v and UDim2.new(1,-21,0.5,0) or UDim2.new(0,2,0.5,0) }, 0.18)
-            cfg[flag] = v; saveConfig()
-        end
-        return o
-    end
-
-    -- ────────────────────────────────────────────────────────
-    -- SLIDER
-    -- ────────────────────────────────────────────────────────
-    --[[
-        USAGE:
-            local Slider = Tab:CreateSlider({
-                Name         = "Slider Name",
-                Range        = {0, 100},    -- {min, max}
-                Increment    = 10,          -- step size
-                Suffix       = "ms",        -- unit shown after value (optional)
-                CurrentValue = 50,          -- starting value
-                Flag         = "UniqueFlag2",
-                Callback     = function(Value)
-                    -- Value is the current number
-                    print("Slider value:", Value)
-                end,
-            })
-
-            Slider:Set(75)           -- set slider value from code
-            print(Slider.CurrentValue)
-
-        AUTO-SAVE: Saves the slider value by its Flag.
-
-        EXAMPLE:
-            local SpeedSlider = SettingsTab:CreateSlider({
-                Name         = "Gain Speed (ms)",
-                Range        = {100, 1000},
-                Increment    = 50,
-                Suffix       = "ms",
-                CurrentValue = 450,
-                Flag         = "GainSpeed",
-                Callback     = function(Value)
-                    getgenv().GainDelay = Value / 1000
-                    print("Set gain delay to", Value, "ms")
-                end,
-            })
-    ]]
-    function Tab:CreateSlider(c2)
-        c2 = c2 or {}
-        local flag    = c2.Flag or ("slider_" .. name .. "_" .. (c2.Name or tostring(nlo())))
-        local minV    = (c2.Range and c2.Range[1]) or 0
-        local maxV    = (c2.Range and c2.Range[2]) or 100
-        local step    = c2.Increment or 1
-        local suffix  = c2.Suffix or ""
-        local val     = (cfg[flag] ~= nil) and cfg[flag] or (c2.CurrentValue or minV)
-        val           = math.clamp(val, minV, maxV)
-
-        local row     = makeRow(50)
-        mk("TextLabel", {
-            Position = UDim2.new(0,14,0,5), Size = UDim2.new(0.6,0,0,18),
-            BackgroundTransparency = 1, Text = c2.Name or "Slider", TextColor3 = T.Text,
-            TextSize = 12, Font = Enum.Font.Gotham, TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 5,
-        }, row)
-        local valLabel = mk("TextLabel", {
-            AnchorPoint = Vector2.new(1,0), Position = UDim2.new(1,-14,0,5), Size = UDim2.new(0.35,0,0,18),
-            BackgroundTransparency = 1, Text = tostring(val) .. (suffix ~= "" and (" " .. suffix) or ""),
-            TextColor3 = T.AccentText, TextSize = 11, Font = Enum.Font.GothamBold,
-            TextXAlignment = Enum.TextXAlignment.Right, ZIndex = 5,
-        }, row)
-        local track = mk("Frame", {
-            Position = UDim2.new(0,14,0,30), Size = UDim2.new(1,-28,0,8),
-            BackgroundColor3 = T.SliderBg, BorderSizePixel = 0, ZIndex = 5,
-        }, row)
-        cr(4, track); sk(T.Stroke, 1, track)
-        local fill = mk("Frame", {
-            Size = UDim2.new((val - minV) / (maxV - minV), 0, 1, 0),
-            BackgroundColor3 = T.SliderFill, BorderSizePixel = 0, ZIndex = 6,
-        }, track)
-        cr(4, fill)
-
-        local function setVal(v)
-            v   = math.clamp(math.round(v / step) * step, minV, maxV)
-            val = v
-            local pct = (v - minV) / (maxV - minV)
-            tw(fill, { Size = UDim2.new(pct, 0, 1, 0) }, 0.1)
-            valLabel.Text = tostring(v) .. (suffix ~= "" and (" " .. suffix) or "")
-            cfg[flag] = v; saveConfig()
-            pcall(c2.Callback or function() end, v)
-        end
-
-        local dragging = false
-        track.InputBegan:Connect(function(i)
-            if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then
-                dragging = true
-                local pct = math.clamp((i.Position.X - track.AbsolutePosition.X) / track.AbsoluteSize.X, 0, 1)
-                setVal(minV + pct * (maxV - minV))
-            end
-        end)
-        UserInputService.InputChanged:Connect(function(i)
-            if dragging and (i.UserInputType == Enum.UserInputType.MouseMovement or i.UserInputType == Enum.UserInputType.Touch) then
-                local pct = math.clamp((i.Position.X - track.AbsolutePosition.X) / track.AbsoluteSize.X, 0, 1)
-                setVal(minV + pct * (maxV - minV))
-            end
-        end)
-        UserInputService.InputEnded:Connect(function(i)
-            if i.UserInputType == Enum.UserInputType.MouseButton1 then dragging = false end
-        end)
-        row.MouseEnter:Connect(function() tw(row, { BackgroundColor3 = T.ElementHover }, 0.12) end)
-        row.MouseLeave:Connect(function() tw(row, { BackgroundColor3 = T.Element }, 0.12) end)
-
-        if c2.Callback then task.defer(function() pcall(c2.Callback, val) end) end
-
-        local o = { CurrentValue = val }
-        function o:Set(v) setVal(v); o.CurrentValue = val end
-        return o
-    end
-
-    -- ────────────────────────────────────────────────────────
-    -- INPUT
-    -- ────────────────────────────────────────────────────────
-    --[[
-        USAGE:
-            local Input = Tab:CreateInput({
-                Name                   = "Input Name",
-                CurrentValue           = "",          -- default text
-                PlaceholderText        = "Type here...",
-                RemoveTextAfterFocusLost = false,     -- clear on click?
-                Flag                   = "UniqueFlag3",
-                Callback               = function(Text)
-                    -- Text is the string typed in the box
-                    print("Input value:", Text)
-                end,
-            })
-
-            Input:Set("new value")   -- set input text from code
-            print(Input.CurrentValue)
-
-        AUTO-SAVE: Saves the text by its Flag.
-
-        EXAMPLE:
-            local WebhookInput = WebhookTab:CreateInput({
-                Name            = "Webhook URL",
-                PlaceholderText = "https://discord.com/api/webhooks/...",
-                Flag            = "MyScript_WebhookURL",
-                Callback        = function(Text)
-                    getgenv().MyWebhookURL = Text
-                end,
-            })
-    ]]
-    function Tab:CreateInput(c2)
-        c2 = c2 or {}
-        local flag = c2.Flag or ("input_" .. name .. "_" .. (c2.Name or tostring(nlo())))
-        local row  = makeRow(42)
-        mk("TextLabel", {
-            Position = UDim2.new(0,14,0,0), Size = UDim2.new(0.34,0,1,0),
-            BackgroundTransparency = 1, Text = c2.Name or "Input", TextColor3 = T.Text,
-            TextSize = 12, Font = Enum.Font.Gotham, TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 5,
-        }, row)
-        local box = mk("Frame", {
-            AnchorPoint = Vector2.new(1,0.5), Position = UDim2.new(1,-12,0.5,0), Size = UDim2.new(0,168,0,27),
-            BackgroundColor3 = T.SliderBg, BorderSizePixel = 0, ZIndex = 5,
-        }, row)
-        cr(6, box); sk(T.Stroke, 1, box)
-        local tb = mk("TextBox", {
-            Position = UDim2.new(0,8,0,0), Size = UDim2.new(1,-14,1,0),
-            BackgroundTransparency = 1, Text = cfg[flag] or c2.CurrentValue or "",
-            PlaceholderText = c2.PlaceholderText or "Enter value...", PlaceholderColor3 = T.SectionText,
-            TextColor3 = T.Text, TextSize = 11, Font = Enum.Font.Gotham, TextXAlignment = Enum.TextXAlignment.Left,
-            ClearTextOnFocus = c2.RemoveTextAfterFocusLost or false, ZIndex = 6,
-        }, box)
-        tb.FocusLost:Connect(function()
-            cfg[flag] = tb.Text; saveConfig()
-            pcall(c2.Callback or function() end, tb.Text)
-        end)
-        row.MouseEnter:Connect(function() tw(row, { BackgroundColor3 = T.ElementHover }, 0.12) end)
-        row.MouseLeave:Connect(function() tw(row, { BackgroundColor3 = T.Element }, 0.12) end)
-        if c2.Callback and (cfg[flag] or c2.CurrentValue) and (cfg[flag] or c2.CurrentValue) ~= "" then
-            task.defer(function() pcall(c2.Callback, cfg[flag] or c2.CurrentValue) end)
-        end
-        local o = { CurrentValue = tb.Text }
-        function o:Set(v) tb.Text = v; o.CurrentValue = v; cfg[flag] = v; saveConfig() end
-        return o
-    end
-
-    -- ────────────────────────────────────────────────────────
-    -- DROPDOWN
-    -- ────────────────────────────────────────────────────────
-    --[[
-        USAGE:
-            local Dropdown = Tab:CreateDropdown({
-                Name            = "Dropdown Name",
-                Options         = {"Option 1", "Option 2", "Option 3"},
-                CurrentOption   = {"Option 1"},   -- default selected (table with 1 or more strings)
-                MultipleOptions = false,           -- true = allow selecting multiple at once
-                Flag            = "UniqueFlag4",
-                Callback        = function(Options)
-                    -- Options is a TABLE of selected strings (even if only 1 selected)
-                    print("Selected:", Options[1])
-                end,
-            })
-
-            Dropdown:Set("Option 2")           -- change selection from code
-            Dropdown:SetOptions({"A","B","C"}) -- refresh the option list
-            print(Dropdown.CurrentOption[1])   -- get current selection
-
-        AUTO-SAVE: Saves the selected option(s) by Flag.
-
-        EXAMPLE:
-            local SellDropdown = AutoTab:CreateDropdown({
-                Name          = "Auto Sell Speed",
-                Options       = {"None","Instant","Every 1s","Every 5s","Every 30s"},
-                CurrentOption = {"None"},
-                Flag          = "AutoFarm_SellSpeed",
-                Callback      = function(Options)
-                    local mode = Options[1]
-                    getgenv().SellMode = mode
-                    -- your sell logic here
-                end,
-            })
-    ]]
-    function Tab:CreateDropdown(c2)
-        c2 = c2 or {}
-        local flag          = c2.Flag or ("dropdown_" .. name .. "_" .. (c2.Name or tostring(nlo())))
-        local options       = c2.Options or {}
-        local multiSelect   = c2.MultipleOptions or false
-        local defaultOpts   = c2.CurrentOption or { options[1] or "None" }
-        local selectedSet   = {}
-
-        -- Restore from config
-        local saved = cfg[flag]
-        if saved and type(saved) == "table" then
-            for _, v in pairs(saved) do selectedSet[v] = true end
-        elseif saved and type(saved) == "string" then
-            selectedSet[saved] = true
-        else
-            for _, v in pairs(defaultOpts) do selectedSet[v] = true end
-        end
-
-        -- Validate saved options still exist
-        for k in pairs(selectedSet) do
-            local found = false
-            for _, o in pairs(options) do if o == k then found = true; break end end
-            if not found then selectedSet[k] = nil end
-        end
-        if not next(selectedSet) and options[1] then selectedSet[options[1]] = true end
-
-        local function getSelected()
-            local t = {}
-            for k in pairs(selectedSet) do table.insert(t, k) end
-            return t
-        end
-        local function getDisplayText()
-            local sel = getSelected()
-            if #sel == 0 then return "None" end
-            if #sel == 1 then return sel[1] end
-            return sel[1] .. " (+" .. (#sel-1) .. ")"
-        end
-
-        local open = false
-        local row  = makeRow(42)
-        row.ClipsDescendants = false
-
-        mk("TextLabel", {
-            Position = UDim2.new(0,14,0,0), Size = UDim2.new(0.42,0,1,0),
-            BackgroundTransparency = 1, Text = c2.Name or "Dropdown", TextColor3 = T.Text,
-            TextSize = 12, Font = Enum.Font.Gotham, TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 5,
-        }, row)
-
-        local sb = mk("TextButton", {
-            AnchorPoint = Vector2.new(1,0.5), Position = UDim2.new(1,-12,0.5,0), Size = UDim2.new(0,140,0,27),
-            BackgroundColor3 = T.SliderBg, Text = getDisplayText(), TextColor3 = T.Text,
-            TextSize = 11, Font = Enum.Font.Gotham, BorderSizePixel = 0, ZIndex = 5,
-        }, row)
-        cr(6, sb); sk(T.Stroke, 1, sb)
-        mk("TextLabel", {
-            AnchorPoint = Vector2.new(1,0.5), Position = UDim2.new(1,-7,0.5,0), Size = UDim2.new(0,12,0,12),
-            BackgroundTransparency = 1, Text = "▾", TextColor3 = T.SubText,
-            TextSize = 9, Font = Enum.Font.GothamBold, ZIndex = 6,
-        }, sb)
-
-        local lf = mk("ScrollingFrame", {
-            Size = UDim2.new(0,152,0,0), BackgroundColor3 = Color3.fromRGB(22,22,30),
-            BorderSizePixel = 0, ZIndex = 500, Visible = false, ClipsDescendants = true,
-            ScrollBarThickness = 3, ScrollBarImageColor3 = T.Accent,
-            CanvasSize = UDim2.new(0,0,0,0), AutomaticCanvasSize = Enum.AutomaticSize.Y,
-        }, sg)
-        cr(8, lf); sk(T.Stroke, 1, lf)
-        mk("UIListLayout", { SortOrder = Enum.SortOrder.LayoutOrder, Padding = UDim.new(0,2) }, lf)
-        mk("UIPadding", { PaddingTop = UDim.new(0,4), PaddingBottom = UDim.new(0,4), PaddingLeft = UDim.new(0,4), PaddingRight = UDim.new(0,4) }, lf)
-
-        local function positionDropdown()
-            local ap = sb.AbsolutePosition; local as2 = sb.AbsoluteSize
-            lf.Position = UDim2.new(0, ap.X + as2.X - 152, 0, ap.Y + as2.Y + 4)
-        end
-
-        local ob2 = {}
-        local th  = 8
-
-        local function closeThis()
-            open = false
-            tw(lf, { Size = UDim2.new(0,152,0,0) }, 0.15)
-            task.delay(0.16, function() lf.Visible = false end)
-            openDropdowns[lf] = nil
-        end
-
-        local function saveAndFire()
-            local sel = getSelected()
-            local saveVal = multiSelect and sel or (sel[1] or "None")
-            cfg[flag] = saveVal; saveConfig()
-            sb.Text = getDisplayText()
-            pcall(c2.Callback or function() end, sel)
-        end
-
-        local function rebuild(opts)
-            for _, child in pairs(lf:GetChildren()) do
-                if child:IsA("TextButton") then child:Destroy() end
-            end
-            ob2 = {}; th = 8
-            for i, opt in ipairs(opts) do
-                local isSel = selectedSet[opt] == true
-                local o = mk("TextButton", {
-                    Size = UDim2.new(1,0,0,27), BackgroundColor3 = isSel and T.SidebarSelected or T.Sidebar,
-                    Text = opt, TextColor3 = isSel and T.Text or T.SubText,
-                    TextSize = 11, Font = Enum.Font.Gotham, BorderSizePixel = 0, ZIndex = 501, LayoutOrder = i,
-                }, lf)
-                cr(5, o); th = th + 31
-                o.MouseEnter:Connect(function()
-                    if not selectedSet[opt] then tw(o, { BackgroundColor3 = T.SidebarHover }, 0.1) end
-                end)
-                o.MouseLeave:Connect(function()
-                    if not selectedSet[opt] then tw(o, { BackgroundColor3 = T.Sidebar }, 0.1) end
-                end)
-                o.MouseButton1Click:Connect(function()
-                    if multiSelect then
-                        selectedSet[opt] = not selectedSet[opt] or nil
-                        tw(o, { BackgroundColor3 = selectedSet[opt] and T.SidebarSelected or T.Sidebar }, 0.1)
-                        o.TextColor3 = selectedSet[opt] and T.Text or T.SubText
-                    else
-                        for k in pairs(selectedSet) do selectedSet[k] = nil end
-                        selectedSet[opt] = true
-                        for _, b in pairs(ob2) do tw(b, { BackgroundColor3 = T.Sidebar }, 0.1); b.TextColor3 = T.SubText end
-                        tw(o, { BackgroundColor3 = T.SidebarSelected }, 0.1); o.TextColor3 = T.Text
-                        closeThis()
-                    end
-                    saveAndFire()
-                end)
-                ob2[opt] = o
+        for e,y in ipairs(e:GetDescendants())do
+            if y:IsA( "TextLabel" )or y:IsA( "TextButton" )or y:IsA( "TextBox" )then
+                y.AutoLocalize = false
             end
         end
-        rebuild(options)
-
-        local function openThis()
-            closeAllDropdowns(); open = true
-            positionDropdown(); lf.Size = UDim2.new(0,152,0,0); lf.Visible = true
-            tw(lf, { Size = UDim2.new(0,152,0,math.min(th,260)) }, 0.2)
-            openDropdowns[lf] = closeThis
+    end
+    )
+end
+local function eM(e,r,y,...)
+    if not e then
+        return
+    end
+    pcall(function(...)
+        if r and e.SetTitle then
+            e:SetTitle(r)
         end
-
-        sb.MouseButton1Click:Connect(function() if open then closeThis() else openThis() end end)
-        row.MouseEnter:Connect(function() tw(row, { BackgroundColor3 = T.ElementHover }, 0.12) end)
-        row.MouseLeave:Connect(function() tw(row, { BackgroundColor3 = T.Element }, 0.12) end)
-
-        if c2.Callback then task.defer(function() pcall(c2.Callback, getSelected()) end) end
-
-        local dobj = {}
-        dobj.CurrentOption = getSelected()
-        function dobj:Set(v)
-            for k in pairs(selectedSet) do selectedSet[k] = nil end
-            selectedSet[v] = true; saveAndFire(); dobj.CurrentOption = getSelected()
-            for opt, b in pairs(ob2) do
-                tw(b, { BackgroundColor3 = opt == v and T.SidebarSelected or T.Sidebar }, 0.1)
-                b.TextColor3 = opt == v and T.Text or T.SubText
+        if y and e.SetDesc then
+            e:SetDesc(y)
+        end
+    end
+    )pcall(function(...)
+        if e.UIElements then
+            if r and(e.UIElements.Title and e.UIElements.Title :IsA( "TextLabel" ))then
+                e.UIElements.Title .AutoLocalize = false e.UIElements.Title .Text =r
+            end
+            if y and(e.UIElements.Desc and e.UIElements.Desc :IsA( "TextLabel" ))then
+                e.UIElements.Desc .AutoLocalize = false e.UIElements.Desc .Text =y
             end
         end
-        function dobj:SetOptions(newOpts) options = newOpts; rebuild(newOpts) end
-        return dobj
     end
-
-    -- ────────────────────────────────────────────────────────
-    -- KEYBIND
-    -- ────────────────────────────────────────────────────────
-    --[[
-        USAGE:
-            local Keybind = Tab:CreateKeybind({
-                Name    = "Keybind Name",
-                Default = "RightShift",   -- default key (string, e.g. "F", "RightControl")
-                Flag    = "UniqueFlag5",
-                Callback = function()
-                    -- runs when the key is pressed
-                    print("Keybind pressed!")
-                end,
-            })
-
-            Keybind:Set("LeftAlt")    -- change key from code
-            print(Keybind.CurrentKeybind)
-
-        AUTO-SAVE: Saves the selected key by Flag.
-
-        EXAMPLE:
-            local ToggleGuiKey = SettingsTab:CreateKeybind({
-                Name     = "Toggle GUI Visibility",
-                Default  = "RightShift",
-                Flag     = "GUI_ToggleKey",
-                Callback = function()
-                    game.Players.LocalPlayer.PlayerGui.AsaiyaHub.Win.Visible =
-                        not game.Players.LocalPlayer.PlayerGui.AsaiyaHub.Win.Visible
-                end,
-            })
-    ]]
-    function Tab:CreateKeybind(c2)
-        c2 = c2 or {}
-        local flag       = c2.Flag or ("keybind_" .. name .. "_" .. (c2.Name or tostring(nlo())))
-        local currentKey = cfg[flag] or c2.Default or "None"
-        local listening  = false
-        local row        = makeRow(42)
-        mk("TextLabel", {
-            Position = UDim2.new(0,14,0,0), Size = UDim2.new(0.6,0,1,0),
-            BackgroundTransparency = 1, Text = c2.Name or "Keybind", TextColor3 = T.Text,
-            TextSize = 12, Font = Enum.Font.Gotham, TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 5,
-        }, row)
-        local kb = mk("TextButton", {
-            AnchorPoint = Vector2.new(1,0.5), Position = UDim2.new(1,-12,0.5,0), Size = UDim2.new(0,80,0,27),
-            BackgroundColor3 = T.SliderBg, Text = "[" .. currentKey .. "]", TextColor3 = T.AccentText,
-            TextSize = 11, Font = Enum.Font.GothamBold, BorderSizePixel = 0, ZIndex = 5,
-        }, row)
-        cr(6, kb); sk(T.Stroke, 1, kb)
-        kb.MouseButton1Click:Connect(function()
-            listening = true; kb.Text = "[...]"; kb.TextColor3 = T.SubText
-        end)
-        UserInputService.InputBegan:Connect(function(inp, gp)
-            if listening then
-                if inp.KeyCode ~= Enum.KeyCode.Unknown then
-                    local k = tostring(inp.KeyCode):split(".")[3]
-                    currentKey = k; kb.Text = "[" .. k .. "]"; kb.TextColor3 = T.AccentText
-                    listening = false; cfg[flag] = k; saveConfig()
+    )
+end
+local function rM(e,r,y,...) pcall(function(...)
+        if not e then
+            return
+        end
+        if e.UIElements and(e.UIElements.Title and e.UIElements.Title :IsA( "TextLabel" ))then
+            e.UIElements.Title .TextColor3 =r
+        end
+        if e.UIElements and e.UIElements.ButtonIcon then
+            local y=e.UIElements.ButtonIcon :FindFirstChildOfClass( "ImageLabel" )or e.UIElements.ButtonIcon
+            if y and y:IsA( "ImageLabel" )then
+                y.ImageColor3 =r
+            end
+        end
+        local u=nil
+        if e.ButtonFrame and(e.ButtonFrame.UIElements and e.ButtonFrame.UIElements .Main )then
+            u=e.ButtonFrame.UIElements .Main
+        elseif e.ToggleFrame and(e.ToggleFrame.UIElements and e.ToggleFrame.UIElements .Main )then
+            u=e.ToggleFrame.UIElements .Main
+        elseif e.ElementFrame then
+            u=e.ElementFrame
+        elseif e.UIElements and e.UIElements.Main then
+            u=e.UIElements.Main
+        end
+        if u and u:IsA( "GuiObject" )then
+            local e=u:FindFirstChild( "AccentCorner" )or u:FindFirstChildOfClass( "UICorner" )
+            if e then
+                e:Destroy()
+            end
+            local j=u:FindFirstChild( "asaiyaAccentStroke" )or u:FindFirstChildOfClass( "UIStroke" )
+            if j then
+                j:Destroy()
+            end
+            local k=u:FindFirstChild( "AccentSquircleOutline" )
+            if k then
+                k:Destroy()
+            end
+            for e,r in ipairs(u:GetDescendants())do
+                if r:IsA( "ImageLabel" )and((string.find (tostring(r.Image ), "117817408534198" )or string.find (r.Name :lower(), "outline" )))then
+                    r.Visible = false r.ImageTransparency = 1
                 end
-            elseif not gp and currentKey ~= "None" then
-                if inp.KeyCode == Enum.KeyCode[currentKey] then pcall(c2.Callback or function() end) end
+            end
+            local a=y
+            if not a then
+                local e,y,u=r:ToHSV()a=Color3.fromHSV (e,math.clamp (y* 0.4 , 0.18 , 0.45 ), 0.18 )
+            end
+            u.ThemeTag =nil u.ImageColor3 =a u.ImageTransparency = 0.08
+        end
+    end
+    )
+end
+local function yM(...)
+    local accent = Color3.fromRGB(150, 150, 150)
+    local bg = Color3.fromRGB(24, 24, 24)
+    if Fk.togTween then rM(Fk.togTween, accent, bg) end
+    if Fk.togAutoPlace then rM(Fk.togAutoPlace, accent, bg) end
+    if Fk.togGodmode then rM(Fk.togGodmode, accent, bg) end
+    if Fk.btnUnstick then rM(Fk.btnUnstick, accent, bg) end
+    if Fk.btnRejoin then rM(Fk.btnRejoin, accent, bg) end
+    if Fk.btnUnload then rM(Fk.btnUnload, Color3.fromRGB(130, 130, 130), bg) end
+end
+local function uM(e,...)
+    local r=e or Xk or "EN"
+    local y=Gk[r]or Gk.EN
+    local u={hk,Ok;
+    Tk}
+    local w={ "Farm" ;
+    "EggSelect" ;
+    "Settings" }
+    for e,r in ipairs(u)do
+        local u=w[e]
+        local k=y.Tabs [u]or u
+        if r then
+            r.Title =k pcall(function(...)
+                if r.SetTitle then
+                    r:SetTitle(k)
+                end
+            end
+            )pcall(function(...)
+                if r.UIElements and r.UIElements.Main then
+                    for r,y in ipairs(r.UIElements.Main :GetDescendants())do
+                        if y:IsA( "TextLabel" )then
+                            y.AutoLocalize = false y.Text =k
+                        end
+                    end
+                end
+                if r.UIElements and r.UIElements.TabItem then
+                    for r,y in ipairs(r.UIElements.TabItem :GetDescendants())do
+                        if y:IsA( "TextLabel" )then
+                            y.AutoLocalize = false y.Text =k
+                        end
+                    end
+                end
+            end
+            )
+        end
+    end
+    pcall(function(...)
+        if Window and(Window.TabModule and Window.TabModule.Tabs )then
+            for r= 1 ,#xk, 1 do
+                local u=Window.TabModule.Tabs [r]
+                local w=xk[r]
+                local j=y.Tabs [w]or w
+                if u and j then
+                    u.Title =j
+                    if u.UIElements and u.UIElements.Main then
+                        for r,y in ipairs(u.UIElements.Main :GetDescendants())do
+                            if y:IsA( "TextLabel" )then
+                                y.AutoLocalize = false y.Text =j
+                            end
+                        end
+                    end
+                    if u.UIElements and u.UIElements.TabItem then
+                        for r,y in ipairs(u.UIElements.TabItem :GetDescendants())do
+                            if y:IsA( "TextLabel" )then
+                                y.AutoLocalize = false y.Text =j
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+    )
+end
+local function wM(e,...)
+    local r=Gk[e]or Gk.EN
+    uM(e)
+    pcall(function(...)
+        eM(Fk.togTween ,r.Farm.TweenTitle ,r.Farm.TweenDesc )
+        eM(Fk.togAutoPlace ,r.Farm.PlaceTitle ,r.Farm.PlaceDesc )
+        eM(Fk.togAutoHatch ,r.Farm.HatchTitle ,r.Farm.HatchDesc )
+        eM(Fk.togAutoReturn ,r.Farm.ReturnTitle ,r.Farm.ReturnDesc )
+        eM(Fk.togAutoTreadmill ,r.Farm.AutoTreadmillTitle ,r.Farm.AutoTreadmillDesc )
+        eM(Fk.togAutoUpgradeTreadmill ,r.Farm.UpgradeTreadmillTitle ,r.Farm.UpgradeTreadmillDesc )
+        eM(Fk.togAutoBuyTrails ,r.Farm.BuyTrailsTitle ,r.Farm.BuyTrailsDesc )
+        if r.EggSelect then
+            eM(Fk.dropTargetZones ,r.EggSelect.DropZonesTitle ,r.EggSelect.DropZonesDesc )
+            eM(Fk.dropTargetRarities ,r.EggSelect.DropRaritiesTitle ,r.EggSelect.DropRaritiesDesc )
+            eM(Fk.togAlwaysSecret ,r.EggSelect.AlwaysSecretPlus ,r.EggSelect.AlwaysSecretPlusDesc )
+        end
+        eM(Fk.sliderSpeed ,r.Character.SpeedTitle ,r.Character.SpeedDesc )
+        eM(Fk.togGodmode ,r.Character.GodmodeTitle ,r.Character.GodmodeDesc )
+        eM(Fk.btnUnstick ,r.Character.UnstickTitle ,r.Character.UnstickDesc )
+        eM(Fk.togAntiAFK ,r.Settings.AntiAFKTitle ,r.Settings.AntiAFKDesc )
+        eM(Fk.btnRejoin ,r.Settings.RejoinTitle ,r.Settings.RejoinDesc )
+        eM(Fk.btnUnload ,r.Settings.UnloadTitle ,r.Settings.UnloadDesc )
+    end)
+    yM()
+end
+local function jM(...)
+    -- boot loader removed
+    local function s(o,...) if o then task.spawn(o) end end
+    return s
+end
+
+local kM={ Gui=nil, Btn=nil }
+-- custom floating bubble removed; WindUI built-in minimize is used
+
+local function aM(...) h.alive = false pcall(asaiyaEspStop)pcall(Ik)pcall(Ak)pcall(function(...) y:Set3dRenderingEnabled( true )
+    end
+    )pcall(function(...)
+        local y=r:FindFirstChild( "[WORST] - Asaiya_EggESP" )
+        if y then
+            y:Destroy()
+        end
+    end
+    )pcall(D4)pcall(u4)
+    if kM and kM.Gui then
+        pcall(function(...) kM.Gui :Destroy() end)
+    end
+    if h.gui then
+        pcall(function(...) h.gui :Destroy()
+        end
+        )
+    end
+    pcall(function(...)
+        for r,y in ipairs(game.CoreGui :GetChildren())do
+            if y.Name :find( "asaiya_" )or y.Name :find( "[WORST] - AsaiyaUI" )or y.Name :find( "WindUI" )then
+                y:Destroy()
+            end
+        end
+    end
+    )
+end
+local function oM(...)
+    local e=function(cb) if cb then cb() end end
+    local function asaiyaHttpGet(url)
+        local ok, res = pcall(function() return game:HttpGet(url) end)
+        if ok and type(res) == "string" and #res > 100 then return res end
+        local req = (syn and syn.request) or (http and http.request) or http_request or request
+        if req then
+            ok, res = pcall(function() return req({ Url = url, Method = "GET" }) end)
+            if ok and type(res) == "table" then
+                local body = res.Body or res.body
+                if type(body) == "string" and #body > 100 then return body end
+            end
+        end
+        return nil
+    end
+    local r = nil
+    local windSources = {
+        "https://ghproxy.net/https://raw.githubusercontent.com/Footagesus/WindUI/main/dist/main.lua",
+        "https://cdn.jsdelivr.net/gh/Footagesus/WindUI@main/dist/main.lua",
+        "https://raw.githubusercontent.com/Footagesus/WindUI/main/dist/main.lua",
+        "https://github.com/Footagesus/WindUI/releases/latest/download/main.lua",
+    }
+    for _, url in ipairs(windSources) do
+        local body = asaiyaHttpGet(url)
+        if body then
+            local ok, lib = pcall(function() return loadstring(body)() end)
+            if ok and type(lib) == "table" then
+                r = lib
+                break
+            end
+        end
+    end
+    local function j(e,...)
+        if not e then
+            return
+        end
+        local y= false
+        if r and r.Notify then
+            local u=pcall(function(...) r:Notify(e)y= true
+            end
+            )
+        end
+        if not y then
+            pcall(function(...)
+                (game:GetService( "StarterGui" )):SetCore( "SendNotification" ,{[ "Title" ]=tostring(e.Title or "[WORST] - Asaiya" ),[ "Text" ]=tostring(e.Content or "" );
+                [ "Duration" ]= 3 })
+            end
+            )
+        end
+    end
+    if r then
+        pcall(function(...)
+            local e=r.Notify
+            if e then
+                r.Notify =function(r,y,...)
+                    local u=pcall(function(...) e(r,y)
+                    end
+                    )
+                    if not u then
+                        pcall(function(...)
+                            (game:GetService( "StarterGui" )):SetCore( "SendNotification" ,{[ "Title" ]=tostring(y and y.Title or "[WORST] - Asaiya" );
+                            [ "Text" ]=tostring(y and y.Content or "" ),[ "Duration" ]= 3 })
+                        end
+                        )
+                    end
+                end
+            end
+        end
+        )
+        local k=workspace.CurrentCamera
+        local a=k and k.ViewportSize or Vector2.new ( 1280 , 720 )
+        local V=w.TouchEnabled and not w.KeyboardEnabled
+        local H=V and math.clamp (a.X * 0.8 , 520 , 620 )or 580
+        local t=V and math.clamp (a.Y * 0.78 , 360 , 440 )or 420
+        local s=UDim2.fromOffset (H,t)
+        -- Monochrome asaiya theme (black / white)
+        pcall(function()
+            r:AddTheme({
+                Name = "asaiya",
+                Accent = Color3.fromHex("#0a0a0a"),
+                Dialog = Color3.fromHex("#0c0c0c"),
+                Outline = Color3.fromHex("#ffffff"),
+                Text = Color3.fromHex("#ffffff"),
+                Placeholder = Color3.fromHex("#888888"),
+                Background = Color3.fromHex("#080808"),
+                Button = Color3.fromHex("#1a1a1a"),
+                Icon = Color3.fromHex("#e5e5e5"),
+                Toggle = Color3.fromHex("#ffffff"),
+                Slider = Color3.fromHex("#ffffff"),
+                Checkbox = Color3.fromHex("#ffffff"),
+            })
+            r:SetTheme("asaiya")
+        end)
+
+        -- asaiya logo for built-in minimize bubble
+        local asaiyaLogoAsset = "hexagon"
+        pcall(function()
+            local logoPath = "asaiya_hub_logo.png"
+            if writefile and getcustomasset then
+                if not (isfile and isfile(logoPath)) then
+                    local b64 = "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"
+                    local raw = (crypt and crypt.base64decode and crypt.base64decode(b64))
+                        or (base64 and base64.decode and base64.decode(b64))
+                    if not raw and typeof(base64_decode) == "function" then
+                        raw = base64_decode(b64)
+                    end
+                    if type(raw) == "string" and #raw > 100 then
+                        writefile(logoPath, raw)
+                    end
+                end
+                if isfile and isfile(logoPath) then
+                    asaiyaLogoAsset = getcustomasset(logoPath)
+                end
             end
         end)
-        row.MouseEnter:Connect(function() tw(row, { BackgroundColor3 = T.ElementHover }, 0.12) end)
-        row.MouseLeave:Connect(function() tw(row, { BackgroundColor3 = T.Element }, 0.12) end)
-        local o = { CurrentKeybind = currentKey }
-        function o:Set(k) currentKey = k; o.CurrentKeybind = k; kb.Text = "[" .. k .. "]"; cfg[flag] = k; saveConfig() end
-        return o
+
+        local p=r:CreateWindow({
+            Title = "[WORST] - Asaiya",
+            Author = "Steal an Egg",
+            Icon = "hexagon",
+            Folder = "[WORST] - Asaiya",
+            Theme = "asaiya",
+            Size = s,
+            MinSize = Vector2.new(480, 320),
+            MaxSize = Vector2.new(1000, 700),
+            Resizable = true,
+            SideBarWidth = V and 150 or 170,
+            ToggleKey = Enum.KeyCode.RightShift,
+            IgnoreAlerts = false,
+            Transparent = false,
+            HideSearchBar = false,
+            Topbar = { Height = 44, ButtonsType = "Default" },
+            OpenButton = {
+                Title = "N",
+                Icon = asaiyaLogoAsset,
+                Enabled = true,
+                Draggable = true,
+                OnlyMobile = false,
+                OnlyIcon = true,
+                CornerRadius = UDim.new(1, 0),
+                StrokeThickness = 2,
+                Scale = 1,
+                Color = ColorSequence.new(
+                    Color3.fromHex("#ffffff"),
+                    Color3.fromHex("#0a0a0a")
+                ),
+            },
+        })
+        Window=p
+        p.IgnoreAlerts = false
+        pcall(function()
+            p:EditOpenButton({
+                Title = "N",
+                Icon = asaiyaLogoAsset,
+                Enabled = true,
+                Draggable = true,
+                OnlyMobile = false,
+                OnlyIcon = true,
+                CornerRadius = UDim.new(1, 0),
+                StrokeThickness = 2,
+                Scale = 1,
+                Color = ColorSequence.new(
+                    Color3.fromHex("#ffffff"),
+                    Color3.fromHex("#111111")
+                ),
+            })
+        end)
+        pcall(function()
+            p:OnClose(function()
+                task.defer(function()
+                    pcall(function()
+                        p.IsOpenButtonEnabled = true
+                        if p.OpenButtonMain and p.OpenButtonMain.Visible then
+                            p.OpenButtonMain:Visible(true)
+                        end
+                    end)
+                end)
+            end)
+        end)
+
+        local function Q(e,...)
+            local r=math.clamp (tonumber(e)or 0 , 0 , 90 )
+            local y=r/ 100 pcall(function(...)
+                local e=p.UIElements and p.UIElements.Main
+                if not e then
+                    return
+                end
+                if p.AcrylicPaint and p.AcrylicPaint.Frame then
+                    p.AcrylicPaint.Frame .Visible =(r== 0 )
+                end
+                local u=e:FindFirstChild( "Background" )
+                if u then
+                    if u:IsA( "ImageLabel" )then
+                        u.ImageTransparency =y
+                    elseif u:IsA( "Frame" )then
+                        u.BackgroundTransparency =y
+                    end
+                end
+            end
+            )
+        end
+        local P=Gk[Xk]or Gk.EN
+        hk=p:Tab({[ "Title" ]=P.Tabs.Farm ; [ "Icon" ]= "solar:box-minimalistic-bold" })
+        Ok=p:Tab({[ "Title" ]=P.Tabs.EggSelect or "Preference" ; [ "Icon" ]= "lucide:settings-2" })
+        Tk=p:Tab({[ "Title" ]=P.Tabs.Settings ; [ "Icon" ]= "solar:settings-bold" })
+        MkTab=p:Tab({[ "Title" ]= "Misc" ; [ "Icon" ]= "lucide:layout-grid" })
+        Yk=Ok
+        local N= false
+        local U=nil
+        local l=nil
+        hk:Section({[ "Title" ]= "Farm" })
+        Fk.togTween =hk:Toggle({[ "Title" ]=P.Farm.TweenTitle ,[ "Desc" ]=P.Farm.TweenDesc ,[ "Icon" ]= "solar:compass-bold" ;
+        [ "Value" ]=h.pureTweenFarm ;
+        [ "Callback" ]=function(e,...)
+            if N then
+                return
+            end
+            if e then
+                T4( "TWEEN" )
+            else
+                if Y4== "TWEEN" or h.pureTweenFarm then
+                    T4( "NONE" )
+                end
+            end
+        end
+        })U=Fk.togTween
+        x4=function(e,...) pcall(function(...)
+                if U and U.Set then
+                    N= true U:Set(e)N= false
+                end
+            end
+            )
+        end
+        W4=function(e,...) end
+        hk:Section({[ "Title" ]= "Place & Hatch" })
+        Fk.togAutoPlace =hk:Toggle({[ "Title" ]=P.Farm.PlaceTitle or "Auto Place" ;
+        [ "Desc" ]=P.Farm.PlaceDesc or "Automatically place eggs at base" ;
+        [ "Icon" ]= "solar:box-bold" ;
+        [ "Value" ]=h.autoPlaceEvery5 ;
+        [ "Callback" ]=function(e,...)
+            h.autoPlaceEvery5 =e
+            h.autoPlace =e
+            if not e then
+                h.batchStealCount = 0
+            end
+            local r=Gk[Xk]or Gk.EN
+            j({[ "Title" ]= "Auto Place" ,[ "Content" ]=e and((r.Notifications.AutoPlaceStarted or "Auto Place enabled" ))or(r.Notifications.AutoPlaceStopped or "Auto Place disabled" ),[ "Icon" ]=e and "check-circle" or "x-circle" })
+            if e then
+                task.spawn (function(...)
+                    while h.alive and(h.autoPlace or h.autoPlaceEvery5)do
+                        local cnt=y4()
+                        if cnt> 0 and not h.isBatchPlacing and not h.glidingToTarget and not h.securingEgg and not h.teleporting then
+                            pcall(function(...)
+                                h.statusText = "[Auto Place] Placing eggs..."
+                                v4(h.glideSpeed ,nil, true )
+                            end
+                            )
+                        end
+                        task.wait ( 4 )
+                    end
+                end
+                )
+            end
+        end
+        })
+        Fk.togAutoHatch =hk:Toggle({[ "Title" ]=P.Farm.HatchTitle ;
+        [ "Desc" ]=P.Farm.HatchDesc ,[ "Icon" ]= "solar:star-bold" ;
+        [ "Value" ]=h.autoHatch ,[ "Callback" ]=function(e,...) h.autoHatch =e j({[ "Title" ]= "Auto Hatch" ,[ "Content" ]=e and Gk[Xk].Notifications.HatchStarted or Gk[Xk].Notifications.HatchStopped ,[ "Icon" ]=e and "check-circle" or "x-circle" })
+        end
+        })
+        hk:Section({[ "Title" ]= "Extras" })
+        Fk.togAutoReturn =hk:Toggle({[ "Title" ]=P.Farm.ReturnTitle ;
+        [ "Desc" ]=P.Farm.ReturnDesc ;
+        [ "Icon" ]= "solar:undo-left-round-bold" ,[ "Value" ]=h.autoGlide ;
+        [ "Callback" ]=function(e,...) h.autoGlide =e j({[ "Title" ]= "Auto Return" ;
+            [ "Content" ]=e and Gk[Xk].Notifications.ReturnStarted or Gk[Xk].Notifications.ReturnStopped ;
+            [ "Icon" ]=e and "check-circle" or "x-circle" })
+        end
+        })
+        Fk.togAutoTreadmill =hk:Toggle({[ "Title" ]=P.Farm.AutoTreadmillTitle or "Auto Treadmill" ;
+        [ "Desc" ]=P.Farm.AutoTreadmillDesc or "Run on treadmill when idle" ;
+        [ "Icon" ]= "solar:running-bold" ;
+        [ "Value" ]=(h.autoTreadmill == true) ;
+        [ "Callback" ]=function(e,...) h.autoTreadmill =e x()n4()
+            if not e and((h.onTreadmill or L4()))then
+                M4()
+            end
+            local r=Gk[Xk]or Gk.EN j({[ "Title" ]= "Auto Treadmill" ;
+            [ "Content" ]=e and((r.Notifications.AutoTreadmillStarted or "Auto Treadmill enabled" ))or(r.Notifications.AutoTreadmillStopped or "Auto Treadmill disabled" );
+            [ "Icon" ]=e and "check-circle" or "x-circle" })
+        end
+        })
+        Fk.togAutoUpgradeTreadmill =hk:Toggle({[ "Title" ]=P.Farm.UpgradeTreadmillTitle or "Auto Upgrade Treadmill" ;
+        [ "Desc" ]=P.Farm.UpgradeTreadmillDesc or "Upgrade treadmill when you have enough cash" ;
+        [ "Icon" ]= "solar:double-alt-arrow-up-bold" ;
+        [ "Value" ]=(h.autoUpgradeTreadmill == true) ,[ "Callback" ]=function(e,...) h.autoUpgradeTreadmill =e x()
+            local r=Gk[Xk]or Gk.EN j({[ "Title" ]= "Upgrade Treadmill" ,[ "Content" ]=e and((r.Notifications.UpgradeTreadmillStarted or "Auto Upgrade enabled" ))or(r.Notifications.UpgradeTreadmillStopped or "Auto Upgrade disabled" ),[ "Icon" ]=e and "check-circle" or "x-circle" })
+        end
+        })
+        Fk.togAutoBuyTrails =hk:Toggle({[ "Title" ]=P.Farm.BuyTrailsTitle or "Auto Buy Trails" ;
+        [ "Desc" ]=P.Farm.BuyTrailsDesc or "Buy and equip the best trail" ;
+        [ "Icon" ]= "solar:fire-bold" ;
+        [ "Value" ]=h.autoBuyTrails ;
+        [ "Callback" ]=function(e,...) h.autoBuyTrails =e x()
+            local r=Gk[Xk]or Gk.EN j({[ "Title" ]= "Buy Trails" ,[ "Content" ]=e and((r.Notifications.BuyTrailsStarted or "Auto Buy Trails enabled" ))or(r.Notifications.BuyTrailsStopped or "Auto Buy Trails disabled" );
+            [ "Icon" ]=e and "check-circle" or "x-circle" })
+        end
+        })
+        Ok:Section({[ "Title" ]= "Eggs" })
+        Fk.togAlwaysSecret =Ok:Toggle({[ "Title" ]=(P.EggSelect and P.EggSelect.AlwaysSecretPlus )or "Auto Steal Secret" ;
+        [ "Desc" ]=(P.EggSelect and P.EggSelect.AlwaysSecretPlusDesc )or "Always collect Secret and above" ;
+        [ "Icon" ]= "solar:star-bold" ;
+        [ "Value" ]=h.alwaysCollectSecretPlus ~= false ;
+        [ "Callback" ]=function(e,...) h.alwaysCollectSecretPlus =e x()
+        end
+        })
+        local D={ "Light Dark" ;
+        "Titan Temple" , "Cherry Blossom" ;
+        "Cosmic" ;
+        "Prehistoric" , "Abyss Ocean" , "Volcano" ;
+        "Snow" ;
+        "Jungle" ;
+        "Desert" , "Lake" ;
+        "Forest" }
+        local C={}
+        for _,z in ipairs(D) do C[z]=z end
+        local q={}
+        for _,z in ipairs(D) do q[z]=z end
+        local n={}
+        for e,r in pairs(h.selectedZones or{})do
+            if r and q[e]then
+                table.insert (n,q[e])
+            end
+        end
+        
+        Fk.togAntiTrap = Ok:Toggle({
+            Title = "Anti Trap",
+            Desc = "Dodge trap hitboxes while moving",
+            Icon = "shield",
+            Value = h.antiTrap ~= false,
+            Callback = function(state)
+                h.antiTrap = state and true or false
+            end,
+        })
+        Fk.togAutoIndex = Ok:Toggle({
+            Title = "Auto Index",
+            Desc = "Claim index / codex unlocks",
+            Icon = "book",
+            Value = h.autoIndex == true,
+            Callback = function(state)
+                h.autoIndex = state and true or false
+                if state then
+                    task.spawn(asaiyaTryIndex)
+                end
+            end,
+        })
+
+        Fk.dropTargetZones =Ok:Dropdown({[ "Title" ]=(P.EggSelect and P.EggSelect.DropZonesTitle )or "Zones" ,[ "Desc" ]=(P.EggSelect and P.EggSelect.DropZonesDesc )or "Select target zones" ,[ "Values" ]=D,[ "Value" ]=n,[ "Multi" ]= true ;
+        [ "Callback" ]=function(e,...)
+            local r={}
+            local function y(e,...)
+                if type(e)== "table" then
+                    e=e.Title or e.Name or e[ 1 ]or ""
+                end
+                local y=tostring(e or "" )
+                local w=C[y]
+                if not w and(y~= "" and(y~= "true" and y~= "false" ))then
+                    for e,r in ipairs(M)do
+                        if string.find (string.lower (y),string.lower (r))then
+                            w=r
+                            break
+                        end
+                    end
+                end
+                if w and f[w]then
+                    r[w]= true
+                end
+            end
+            if type(e)== "table" then
+                for e,r in pairs(e)do
+                    if type(r)== "string" or type(r)== "table" then
+                        y(r)
+                    elseif type(e)== "string" and r== true then
+                        y(e)
+                    end
+                end
+            elseif type(e)== "string" then
+                y(e)
+            end
+            h.selectedZones =r x()
+        end
+        })
+        local I={ "Divine (Tier 6)" ;
+        "Eternal (Tier 5)" , "Secret (Tier 4)" , "Cosmic (Tier 3)" , "Mythic (Tier 2)" ;
+        "Legendary (Tier 1)" ;
+        "Epic" ;
+        "Rare" ;
+        "Uncommon" , "Common" }
+        local L={[ "Divine (Tier 6)" ]= "Divine" ,[ "Eternal (Tier 5)" ]= "Eternal" ,[ "Secret (Tier 4)" ]= "Secret" ;
+        [ "Cosmic (Tier 3)" ]= "Cosmic" ;
+        [ "Mythic (Tier 2)" ]= "Mythic" ;
+        [ "Legendary (Tier 1)" ]= "Legendary" ,[ "Epic" ]= "Epic" ,[ "Rare" ]= "Rare" ,[ "Uncommon" ]= "Uncommon" ,[ "Common" ]= "Common" }
+        local E={[ "Divine" ]= "Divine (Tier 6)" ,[ "Eternal" ]= "Eternal (Tier 5)" ;
+        [ "Secret" ]= "Secret (Tier 4)" ;
+        [ "Cosmic" ]= "Cosmic (Tier 3)" ,[ "Mythic" ]= "Mythic (Tier 2)" ,[ "Legendary" ]= "Legendary (Tier 1)" ,[ "Epic" ]= "Epic" ,[ "Rare" ]= "Rare" ;
+        [ "Uncommon" ]= "Uncommon" ;
+        [ "Common" ]= "Common" }
+        local b={}
+        for e,r in pairs(h.selectedRarities or{})do
+            if r and E[e]then
+                table.insert (b,E[e])
+            end
+        end
+        Fk.dropTargetRarities =Ok:Dropdown({[ "Title" ]=(P.EggSelect and P.EggSelect.DropRaritiesTitle )or "Rarities" ;
+        [ "Desc" ]=(P.EggSelect and P.EggSelect.DropRaritiesDesc )or "Select target rarities" ,[ "Values" ]=I;
+        [ "Value" ]=b,[ "Multi" ]= true ;
+        [ "Callback" ]=function(e,...)
+            local r={}
+            local function y(e,...)
+                if type(e)== "table" then
+                    e=e.Title or e.Name or e[ 1 ]or ""
+                end
+                local y=string.lower (tostring(e or "" ))
+                for e,u in ipairs(X)do
+                    if string.find (y,string.lower (u))then
+                        r[u]= true
+                        break
+                    end
+                end
+            end
+            if type(e)== "table" then
+                for e,r in pairs(e)do
+                    if type(r)== "string" or type(r)== "table" then
+                        y(r)
+                    elseif type(e)== "string" and r== true then
+                        y(e)
+                    end
+                end
+            elseif type(e)== "string" then
+                y(e)
+            end
+            h.selectedRarities =r x()
+        end
+        })
+        Ok:Section({[ "Title" ]= "Character" })
+        Fk.sliderSpeed =Ok:Slider({[ "Title" ]=P.Character.SpeedTitle ,[ "Desc" ]=P.Character.SpeedDesc ,[ "Step" ]= 25 ,[ "Value" ]={[ "Min" ]= 100 ;
+        [ "Max" ]= 1000 ;
+        [ "Default" ]=h.glideSpeed or 600 },[ "Callback" ]=function(e,...) h.glideSpeed =e Y(e)
+        end
+        })
+        Fk.togGodmode =Ok:Toggle({[ "Title" ]=P.Character.GodmodeTitle ;
+        [ "Desc" ]=P.Character.GodmodeDesc ,[ "Icon" ]= "solar:shield-check-bold" ,[ "Value" ]= false ;
+        [ "Callback" ]=function(e,...)
+            if e then
+                enableasaiyaGodmode()j({[ "Title" ]= "Godmode" ,[ "Content" ]=Gk[Xk].Notifications.GodmodeStarted ,[ "Icon" ]= "shield-check" })
+            else
+                disableasaiyaGodmode()j({[ "Title" ]= "Godmode" ,[ "Content" ]=Gk[Xk].Notifications.GodmodeStopped ,[ "Icon" ]= "shield-off" })
+            end
+        end
+        })
+        Fk.btnUnstick =Ok:Button({[ "Title" ]=P.Character.UnstickTitle ,[ "Desc" ]=P.Character.UnstickDesc ,[ "Icon" ]= "solar:exit-bold" ;
+        [ "Callback" ]=function(...) pcall(M4)pcall(C4)pcall(D4)j({[ "Title" ]= "Unstick" ;
+            [ "Content" ]=Gk[Xk].Notifications.UnstickDone ,[ "Icon" ]= "check" })
+        end
+        })
+        Tk:Section({[ "Title" ]= "System" })
+        Fk.togAntiAFK =Tk:Toggle({[ "Title" ]=(P.Settings and P.Settings.AntiAFKTitle )or "Anti AFK" ,[ "Desc" ]=(P.Settings and P.Settings.AntiAFKDesc )or "Prevent being kicked for inactivity" ;
+        [ "Icon" ]= "solar:shield-check-bold" ;
+        [ "Value" ]=h.antiAFK ,[ "Callback" ]=function(e,...) h.antiAFK =e x()
+            if e then
+                bk()
+            else
+                Ak()
+            end
+            local r=Gk[Xk]or Gk.EN j({[ "Title" ]= "Anti AFK" ,[ "Content" ]=e and((r.Notifications.AntiAFKStarted or "Anti AFK enabled" ))or(r.Notifications.AntiAFKStopped or "Anti AFK disabled" ),[ "Icon" ]=e and "check-circle" or "x-circle" })
+        end
+        })
+        Fk.btnRejoin =Tk:Button({[ "Title" ]=P.Settings.RejoinTitle ;
+        [ "Desc" ]=P.Settings.RejoinDesc ;
+        [ "Icon" ]= "solar:logout-2-bold" ,[ "Callback" ]=function(...) pcall(function(...) TeleportService:TeleportToPlaceInstance(game.PlaceId,game.JobId,o)
+            end
+            )
+        end
+        })
+        Fk.btnUnload =Tk:Button({[ "Title" ]=P.Settings.UnloadTitle ,[ "Desc" ]=P.Settings.UnloadDesc ;
+        [ "Icon" ]= "solar:trash-bin-trash-bold" ,[ "Callback" ]=function(...) aM()
+        end
+        })
+
+        -- ===== ADDED UI (does not replace existing) =====
+        hk:Section({ Title = "Manual" })
+        Fk.btnHatchOnce = hk:Button({
+            Title = "Hatch Once",
+            Desc = "Hatch ready eggs once",
+            Icon = "egg",
+            Callback = function()
+                task.spawn(function()
+                    pcall(function()
+                        if type(v4) == "function" then
+                            v4()
+                        end
+                    end)
+                    j({ Title = "Hatch", Content = "Hatch pass fired", Icon = "check" })
+                end)
+            end,
+        })
+        Fk.btnPlaceOnce = hk:Button({
+            Title = "Place Once",
+            Desc = "Return and place carried eggs",
+            Icon = "package",
+            Callback = function()
+                task.spawn(function()
+                    pcall(function()
+                        h.statusText = "[Manual] Depositing eggs..."
+                        if type(g4) == "function" then
+                            g4(h.glideSpeed)
+                        end
+                        if type(v4) == "function" then
+                            v4()
+                        end
+                        if type(u4) == "function" then
+                            u4()
+                        end
+                        h.isReturning = false
+                        h.delivering = false
+                    end)
+                    if h.webhookOnSteal then
+                        asaiyaWebhook("Place", "Manual place cycle completed.")
+                    end
+                end)
+            end,
+        })
+
+        Ok:Section({ Title = "Vision" })
+        Fk.togEggESP = Ok:Toggle({
+            Title = "Egg ESP",
+            Desc = "HUD markers · rarity hierarchy · distance",
+            Icon = "eye",
+            Value = h.eggESP == true,
+            Callback = function(state)
+                h.eggESP = state and true or false
+                if state then
+                    asaiyaEspStart()
+                    j({ Title = "Egg ESP", Content = "HUD online", Icon = "eye" })
+                else
+                    asaiyaEspStop()
+                    j({ Title = "Egg ESP", Content = "HUD offline", Icon = "eye-off" })
+                end
+            end,
+        })
+
+        MkTab:Section({ Title = "Server" })
+        Fk.togAutoHop = MkTab:Toggle({
+            Title = "Auto Hop",
+            Desc = "Rotate public servers",
+            Icon = "server",
+            Value = false,
+            Callback = function(state)
+                h.autoHop = state and true or false
+                if state then
+                    j({ Title = "Server Hop", Content = string.format("%d / %d hops used", h.hopCount or 0, h.maxHops or 15), Icon = "server" })
+                end
+            end,
+        })
+        Fk.sliderMaxHops = MkTab:Slider({
+            Title = "Max Hops",
+            Step = 1,
+            Value = { Min = 1, Max = 100, Default = h.maxHops or 15 },
+            Callback = function(v)
+                h.maxHops = v
+            end,
+        })
+        Fk.sliderHopDelay = MkTab:Slider({
+            Title = "Hop Delay",
+            Step = 1,
+            Value = { Min = 5, Max = 120, Default = h.hopDelay or 20 },
+            Callback = function(v)
+                h.hopDelay = v
+            end,
+        })
+        Fk.btnHopNow = MkTab:Button({
+            Title = "Hop Now",
+            Desc = "Teleport to another public server",
+            Icon = "log-out",
+            Callback = function()
+                task.spawn(function()
+                    local ok = asaiyaHopNow()
+                    j({ Title = "Server Hop", Content = ok and "Teleporting…" or "No open server", Icon = "server" })
+                end)
+            end,
+        })
+        Fk.btnResetHops = MkTab:Button({
+            Title = "Reset Hop Count",
+            Callback = function()
+                h.hopCount = 0
+                j({ Title = "Server Hop", Content = "Hop count reset", Icon = "refresh-cw" })
+            end,
+        })
+
+        MkTab:Section({ Title = "Performance" })
+        Fk.togFpsBoost = MkTab:Toggle({
+            Title = "FPS Boost",
+            Desc = "Strip particles / shadows / water",
+            Icon = "gauge",
+            Value = h.performanceMode == true,
+            Callback = function(state)
+                if state then
+                    Mk()
+                    j({ Title = "FPS", Content = "Boost on", Icon = "gauge" })
+                else
+                    Ik()
+                    j({ Title = "FPS", Content = "Restored", Icon = "gauge" })
+                end
+            end,
+        })
+
+        MkTab:Section({ Title = "Webhook" })
+        Fk.togWebhook = MkTab:Toggle({
+            Title = "Webhook Alerts",
+            Desc = "asaiya monochrome Discord embeds",
+            Icon = "bell",
+            Value = false,
+            Callback = function(state)
+                h.webhookEnabled = state and true or false
+                if state and (h.webhookUrl or "") ~= "" then
+                    asaiyaWebhook("Online", "Webhook linked to [WORST] - Asaiya.")
+                end
+            end,
+        })
+        Fk.inputWebhook = MkTab:Input({
+            Title = "Webhook URL",
+            Placeholder = "https://discord.com/api/webhooks/…",
+            Value = h.webhookUrl or "",
+            Callback = function(text)
+                h.webhookUrl = tostring(text or "")
+            end,
+        })
+        Fk.togWebhookSteal = MkTab:Toggle({
+            Title = "Alert on Place",
+            Value = true,
+            Callback = function(state)
+                h.webhookOnSteal = state and true or false
+            end,
+        })
+        Fk.togWebhookHop = MkTab:Toggle({
+            Title = "Alert on Hop",
+            Value = true,
+            Callback = function(state)
+                h.webhookOnHop = state and true or false
+            end,
+        })
+        Fk.btnWebhookTest = MkTab:Button({
+            Title = "Test Webhook",
+            Icon = "send",
+            Callback = function()
+                h.webhookEnabled = true
+                asaiyaWebhook("Test", "steal an egg script webhook is working rn", {
+                    { name = "Style", value = "Monochrome embed", inline = true },
+                    { name = "Hub", value = "[WORST] - Asaiya", inline = true },
+                })
+                j({ Title = "Webhook", Content = "steal an egg script webhook is working rn", Icon = "send" })
+            end,
+        })
+
+
+        yM()
+        e(function() end)
+        return
     end
-
-    return Tab
-end
-
--- ============================================================
--- ANIMATE WINDOW IN
-
-
--- ============================================================
--- ASAIYA UI — STEAL AN EGG ONLY
--- ============================================================
--- The original Steal an Egg logic above is intentionally kept intact.
--- Everything below is presentation/control only and uses the AsaiyaHub
--- framework from Pasted text(2).txt.
-
-h.gui = sg
-
-local function UIShutdown()
-    h.alive = false
-    pcall(nyxEspStop)
-    pcall(Ik)
-    pcall(Ak)
-    pcall(disableNyxGodmode)
-    pcall(function() y:Set3dRenderingEnabled(true) end)
-    pcall(function()
-        local gui = playerGui:FindFirstChild("AsaiyaHub")
-        if gui then gui:Destroy() end
-    end)
-end
-
-local function uiNotify(title, content, duration)
-    pcall(function() Notify(title, content, duration or 3) end)
-end
-
-local function setZonesFromOptions(options)
-    local out = {}
-    if type(options) == "table" then
-        for _, v in ipairs(options) do
-            if type(v) == "string" and f[v] then
-                out[v] = true
+    if h.gui then
+        pcall(function(...) h.gui :Destroy()
+        end
+        )h.gui =nil
+    end
+    local k=Instance.new ( "ScreenGui" )k.Name = "[WORST] - AsaiyaUI_v41_5" k.ResetOnSpawn = false k.DisplayOrder = 99999 k.ZIndexBehavior =Enum.ZIndexBehavior.Sibling k.AutoLocalize = false
+    local a=o:FindFirstChild( "PlayerGui" )or game:GetService( "CoreGui" )pcall(function(...)
+        if syn and syn.protect_gui then
+            syn.protect_gui (k)k.Parent =game:GetService( "CoreGui" )
+        else
+            k.Parent =a
+        end
+    end
+    )
+    if not k.Parent then
+        k.Parent =a
+    end
+    h.gui =k
+    local V=Color3.fromRGB ( 14 , 14 , 14 )
+    local H=Color3.fromRGB ( 20 , 20 , 20 )
+    local t=Color3.fromRGB ( 22 , 22 , 22 )
+    local s=Color3.fromRGB ( 30 , 30 , 30 )
+    local p=Color3.fromRGB ( 55 , 55 , 55 )
+    local B=Color3.fromRGB ( 190 , 190 , 190 )
+    local J=Color3.fromRGB ( 145 , 145 , 145 )
+    local K=Color3.fromRGB ( 38 , 43 , 60 )
+    local c=Color3.fromRGB ( 155 , 155 , 155 )
+    local v=Color3.fromRGB ( 200 , 200 , 200 )
+    local i= 560
+    local R= 46
+    local g= false
+    local Q=Instance.new ( "Frame" )Q.Name = "MainFrame" Q.Size =UDim2.new ( 0 , 380 , 0 ,i)Q.Position =UDim2.new ( 0.04 , 0 , 0.22 , 0 )Q.BackgroundColor3 =V Q.BorderSizePixel = 0 Q.Active = true Q.Draggable = true Q.ClipsDescendants = true Q.Parent =k
+    local P=Instance.new ( "UICorner" )P.CornerRadius =UDim.new ( 0 , 12 )P.Parent =Q
+    local N=Instance.new ( "UIStroke" )N.Color =p N.Thickness = 1.4 N.Parent =Q
+    local U=Instance.new ( "Frame" )U.Name = "Header" U.Size =UDim2.new ( 1 , 0 , 0 , 46 )U.BackgroundColor3 =H U.BorderSizePixel = 0 U.Parent =Q;
+    (Instance.new ( "UICorner" ,U)).CornerRadius =UDim.new ( 0 , 12 )
+    local l=Instance.new ( "TextLabel" )l.Size =UDim2.new ( 1 , -90 , 0 , 22 )l.Position =UDim2.new ( 0 , 12 , 0 , 6 )l.BackgroundTransparency = 1 l.Text = "[WORST] - Asaiya (Fallback)" l.TextColor3 =B l.TextSize = 14 l.Font =Enum.Font.GothamBold l.TextXAlignment =Enum.TextXAlignment.Left l.AutoLocalize = false l.Parent =U
+    local D=Instance.new ( "TextLabel" )D.Size =UDim2.new ( 1 , -90 , 0 , 14 )D.Position =UDim2.new ( 0 , 12 , 0 , 26 )D.BackgroundTransparency = 1 D.Text = "[WORST] - Asaiya v1.0" D.TextColor3 =Color3.fromRGB ( 155 , 155 , 155 )D.TextSize = 11 D.Font =Enum.Font.Gotham D.TextXAlignment =Enum.TextXAlignment.Left D.AutoLocalize = false D.Parent =U
+    local C=Instance.new ( "TextButton" )C.Size =UDim2.new ( 0 , 28 , 0 , 28 )C.Position =UDim2.new ( 1 , -68 , 0 , 9 )C.BackgroundColor3 =t C.Text = "-" C.TextColor3 =B C.TextSize = 16 C.Font =Enum.Font.GothamBold C.AutoButtonColor = false C.Parent =U;
+    (Instance.new ( "UICorner" ,C)).CornerRadius =UDim.new ( 0 , 6 )
+    local q=Instance.new ( "TextButton" )q.Size =UDim2.new ( 0 , 28 , 0 , 28 )q.Position =UDim2.new ( 1 , -36 , 0 , 9 )q.BackgroundColor3 =Color3.fromRGB ( 180 , 180 , 180 )q.Text = "X" q.TextColor3 =B q.TextSize = 12 q.Font =Enum.Font.GothamBold q.AutoButtonColor = false q.Parent =U;
+    (Instance.new ( "UICorner" ,q)).CornerRadius =UDim.new ( 0 , 6 )
+    local n=Instance.new ( "ScrollingFrame" )n.Size =UDim2.new ( 1 , 0 , 1 , -46 )n.Position =UDim2.new ( 0 , 0 , 0 , 46 )n.BackgroundTransparency = 1 n.BorderSizePixel = 0 n.ScrollBarThickness = 3 n.ScrollBarImageColor3 =p n.CanvasSize =UDim2.new ( 0 , 0 , 0 , 0 )n.AutomaticCanvasSize =Enum.AutomaticSize.Y n.Parent =Q
+    local I=Instance.new ( "UIListLayout" )I.SortOrder =Enum.SortOrder.LayoutOrder I.Padding =UDim.new ( 0 , 7 )I.Parent =n
+    local L=Instance.new ( "UIPadding" )L.PaddingTop =UDim.new ( 0 , 8 )L.PaddingBottom =UDim.new ( 0 , 12 )L.PaddingLeft =UDim.new ( 0 , 10 )L.PaddingRight =UDim.new ( 0 , 10 )L.Parent =n C.MouseButton1Click :Connect(function(...) g=not g C.Text =g and "+" or "-" ;
+        (u:Create(Q,TweenInfo.new ( 0.25 ,Enum.EasingStyle.Quart ,Enum.EasingDirection.Out ),{[ "Size" ]=g and UDim2.new ( 0 , 330 , 0 ,R)or UDim2.new ( 0 , 330 , 0 ,i)})):Play()
+    end
+    )q.MouseButton1Click :Connect(function(...) aM()
+    end
+    )
+    local function E(e,r,...)
+        local y=Instance.new ( "Frame" )y.Size =UDim2.new ( 1 , 0 , 0 , 20 )y.BackgroundTransparency = 1 y.LayoutOrder =r y.Parent =n
+        local u=Instance.new ( "TextLabel" )u.Size =UDim2.new ( 1 , 0 , 1 , 0 )u.BackgroundTransparency = 1 u.Text =e u.TextColor3 =Color3.fromRGB ( 165 , 165 , 165 )u.TextSize = 11 u.Font =Enum.Font.GothamBold u.TextXAlignment =Enum.TextXAlignment.Left u.AutoLocalize = false u.Parent =y
+        return y
+    end
+    local function b(e,r,y,w,j,k,...)
+        local a=Instance.new ( "Frame" )a.Size =UDim2.new ( 1 , 0 , 0 , 52 )a.BackgroundColor3 =t a.LayoutOrder =j a.Parent =n;
+        (Instance.new ( "UICorner" ,a)).CornerRadius =UDim.new ( 0 , 8 )
+        local o=Instance.new ( "TextLabel" )o.Size =UDim2.new ( 1 , -60 , 0 , 18 )o.Position =UDim2.new ( 0 , 10 , 0 , 8 )o.BackgroundTransparency = 1 o.Text =e o.TextColor3 =w or B o.TextSize = 13 o.Font =Enum.Font.GothamBold o.TextXAlignment =Enum.TextXAlignment.Left o.AutoLocalize = false o.Parent =a
+        local V=Instance.new ( "TextLabel" )V.Size =UDim2.new ( 1 , -60 , 0 , 16 )V.Position =UDim2.new ( 0 , 10 , 0 , 26 )V.BackgroundTransparency = 1 V.Text =r V.TextColor3 =J V.TextSize = 10 V.Font =Enum.Font.Gotham V.TextXAlignment =Enum.TextXAlignment.Left V.AutoLocalize = false V.Parent =a
+        local H=Instance.new ( "TextButton" )H.Size =UDim2.new ( 0 , 44 , 0 , 24 )H.Position =UDim2.new ( 1 , -54 , 0.5 , -12 )H.BackgroundColor3 =y and w or K H.Text = "" H.AutoButtonColor = false H.Parent =a;
+        (Instance.new ( "UICorner" ,H)).CornerRadius =UDim.new ( 1 , 0 )
+        local s=Instance.new ( "Frame" )s.Size =UDim2.new ( 0 , 18 , 0 , 18 )s.Position =y and UDim2.new ( 1 , -21 , 0.5 , -9 )or UDim2.new ( 0 , 3 , 0.5 , -9 )s.BackgroundColor3 =y and v or c s.Parent =H;
+        (Instance.new ( "UICorner" ,s)).CornerRadius =UDim.new ( 1 , 0 )
+        local p=y
+        local function i(e,...) p=e
+            local r=TweenInfo.new ( 0.18 ,Enum.EasingStyle.Quart ,Enum.EasingDirection.Out );
+            (u:Create(H,r,{[ "BackgroundColor3" ]=p and w or K})):Play();
+            (u:Create(s,r,{[ "Position" ]=p and UDim2.new ( 1 , -21 , 0.5 , -9 )or UDim2.new ( 0 , 3 , 0.5 , -9 );
+            [ "BackgroundColor3" ]=p and v or c})):Play()
+        end
+        H.MouseButton1Click :Connect(function(...)
+            local e=not p i(e)k(e)
+        end
+        )
+        return i
+    end
+    local function A(e,r,y,u,w,...)
+        local j=Instance.new ( "Frame" )j.Size =UDim2.new ( 1 , 0 , 0 , 48 )j.BackgroundColor3 =t j.LayoutOrder =u j.Parent =n;
+        (Instance.new ( "UICorner" ,j)).CornerRadius =UDim.new ( 0 , 8 )
+        local k=Instance.new ( "TextLabel" )k.Size =UDim2.new ( 1 , -95 , 0 , 18 )k.Position =UDim2.new ( 0 , 10 , 0 , 6 )k.BackgroundTransparency = 1 k.Text =e k.TextColor3 =y or B k.TextSize = 13 k.Font =Enum.Font.GothamBold k.TextXAlignment =Enum.TextXAlignment.Left k.AutoLocalize = false k.Parent =j
+        local a=Instance.new ( "TextLabel" )a.Size =UDim2.new ( 1 , -95 , 0 , 16 )a.Position =UDim2.new ( 0 , 10 , 0 , 24 )a.BackgroundTransparency = 1 a.Text =r a.TextColor3 =J a.TextSize = 10 a.Font =Enum.Font.Gotham a.TextXAlignment =Enum.TextXAlignment.Left a.AutoLocalize = false a.Parent =j
+        local o=Instance.new ( "TextButton" )o.Size =UDim2.new ( 0 , 78 , 0 , 30 )o.Position =UDim2.new ( 1 , -86 , 0.5 , -15 )o.BackgroundColor3 =y o.Text = "RUN" o.TextColor3 =Color3.fromRGB ( 200 , 200 , 200 )o.TextSize = 11 o.Font =Enum.Font.GothamBold o.AutoButtonColor = false o.Parent =j;
+        (Instance.new ( "UICorner" ,o)).CornerRadius =UDim.new ( 0 , 6 )o.MouseButton1Click :Connect(w)
+    end
+    E( "MAIN" , 10 )
+    local S= false
+    local Z=nil
+    local z=nil Z=b( "Auto Steal" , "Automatically steal eggs" ,h.pureTweenFarm ,Color3.fromRGB ( 165 , 165 , 165 ), 11 ,function(e,...)
+        if S then
+            return
+        end
+        if e then
+            T4( "TWEEN" )
+        else
+            if Y4== "TWEEN" or h.pureTweenFarm then
+                T4( "NONE" )
             end
         end
     end
-    h.selectedZones = out
-    pcall(x)
-end
-
-local rarityDisplay = {
-    ["Divine"] = "Divine (Tier 6)",
-    ["Eternal"] = "Eternal (Tier 5)",
-    ["Secret"] = "Secret (Tier 4)",
-    ["Cosmic"] = "Cosmic (Tier 3)",
-    ["Mythic"] = "Mythic (Tier 2)",
-    ["Legendary"] = "Legendary (Tier 1)",
-    ["Epic"] = "Epic",
-    ["Rare"] = "Rare",
-    ["Uncommon"] = "Uncommon",
-    ["Common"] = "Common",
-}
-local rarityFromDisplay = {}
-for k,v in pairs(rarityDisplay) do rarityFromDisplay[v] = k end
-
-local function setRaritiesFromOptions(options)
-    local out = {}
-    if type(options) == "table" then
-        for _, v in ipairs(options) do
-            local key = rarityFromDisplay[tostring(v)] or tostring(v)
-            if G[key] then out[key] = true end
+    )z=b( "Auto Steal (Teleport)" , "Teleport steal (disabled)" ,false ,Color3.fromRGB ( 80 , 80 , 80 ), 12 ,function(e,...)
+        if S then
+            return
+        end
+        if e then
+            T4( "WARP" )
+        else
+            if Y4== "WARP" or h.autoFarmLoop then
+                T4( "NONE" )
+            end
         end
     end
-    h.selectedRarities = out
-    pcall(x)
-end
-
--- ------------------------------------------------------------
--- MAIN / FARM
--- ------------------------------------------------------------
-local MainTab = Window:CreateTab("Main", 1)
-
-MainTab:CreateSection("Status")
-local statusLabel = MainTab:CreateLabel("Status: Ready")
-local targetLabel = MainTab:CreateLabel("Target: Scanning...")
-
-MainTab:CreateSection("Auto Steal")
-MainTab:CreateToggle({
-    Name = "Auto Steal",
-    CurrentValue = h.pureTweenFarm == true,
-    Flag = "StealEgg_AutoSteal",
-    Callback = function(v)
-        if v then
-            T4("TWEEN")
-        elseif Y4 == "TWEEN" or h.pureTweenFarm then
-            T4("NONE")
-        end
-    end,
-})
-
-MainTab:CreateToggle({
-    Name = "Auto Steal (Teleport)",
-    CurrentValue = h.autoFarmLoop == true,
-    Flag = "StealEgg_AutoStealTeleport",
-    Callback = function(v)
-        if v then
-            T4("WARP")
-        elseif Y4 == "WARP" or h.autoFarmLoop then
-            T4("NONE")
-        end
-    end,
-})
-
-MainTab:CreateButton({
-    Name = "Single Steal (Teleport)",
-    ButtonText = "Steal",
-    Callback = function()
-        task.spawn(function()
-            if Y4 ~= "NONE" then
-                T4("NONE")
-                task.wait(0.2)
+    )x4=function(e,...) pcall(function(...)
+            if Z then
+                S= true Z(e)S= false
             end
-            local target = N4()
-            if target then
-                local got = l4(target, nil)
-                if got then
+        end
+        )
+    end
+    W4=function(e,...) pcall(function(...)
+            if z then
+                S= true z(e)S= false
+            end
+        end
+        )
+    end
+    A( "Single Steal (Teleport)" , "Teleport to steal 1 target egg and return" ,Color3.fromRGB ( 170 , 170 , 170 ), 13 ,function(...) task.spawn (function(...)
+            if Y4~= "NONE" then
+                T4( "NONE" )task.wait ( 0.2 )
+            end
+            local e=N4()
+            if e then
+                local y=l4(e,nil)
+                if y then
                     pcall(u4)
                     if h.autoGlide then
-                        Q4(h.glideSpeed)
-                        pcall(u4)
+                        Q4(h.glideSpeed )u4()
                     end
                 end
             end
-        end)
-    end,
-})
-
-MainTab:CreateSection("Place & Hatch")
-MainTab:CreateButton({
-    Name = "Place Egg",
-    ButtonText = "Run",
-    Callback = function()
-        task.spawn(function()
-            h.statusText = "[Manual] Depositing eggs..."
-            pcall(g4, h.glideSpeed)
-            pcall(v4)
-            pcall(u4)
-            h.isReturning = false
-            h.delivering = false
-        end)
-    end,
-})
-
-MainTab:CreateToggle({
-    Name = "Auto Place",
-    CurrentValue = h.autoPlaceEvery5 == true,
-    Flag = "StealEgg_AutoPlace",
-    Callback = function(v)
-        h.autoPlaceEvery5 = v
-        h.autoPlace = v
-        if not v then h.batchStealCount = 0 end
-    end,
-})
-
-MainTab:CreateToggle({
-    Name = "Auto Hatch",
-    CurrentValue = h.autoHatch == true,
-    Flag = "StealEgg_AutoHatch",
-    Callback = function(v) h.autoHatch = v end,
-})
-
-MainTab:CreateToggle({
-    Name = "Auto Return",
-    CurrentValue = h.autoGlide == true,
-    Flag = "StealEgg_AutoReturn",
-    Callback = function(v) h.autoGlide = v end,
-})
-
-MainTab:CreateSection("Extras")
-MainTab:CreateToggle({
-    Name = "Auto Treadmill",
-    CurrentValue = h.autoTreadmill == true,
-    Flag = "StealEgg_AutoTreadmill",
-    Callback = function(v)
-        h.autoTreadmill = v
-        pcall(x)
-        pcall(n4)
-        if not v and (h.onTreadmill or L4()) then pcall(M4) end
-    end,
-})
-
-MainTab:CreateToggle({
-    Name = "Auto Upgrade Treadmill",
-    CurrentValue = h.autoUpgradeTreadmill == true,
-    Flag = "StealEgg_AutoUpgradeTreadmill",
-    Callback = function(v) h.autoUpgradeTreadmill = v; pcall(x) end,
-})
-
-MainTab:CreateToggle({
-    Name = "Auto Buy Trails",
-    CurrentValue = h.autoBuyTrails == true,
-    Flag = "StealEgg_AutoBuyTrails",
-    Callback = function(v) h.autoBuyTrails = v; pcall(x) end,
-})
-
-MainTab:CreateSection("Manual")
-MainTab:CreateButton({
-    Name = "Hatch Once",
-    ButtonText = "Hatch",
-    Callback = function()
-        task.spawn(function()
-            pcall(v4)
-            uiNotify("Hatch", "Hatch cycle fired")
-        end)
-    end,
-})
-MainTab:CreateButton({
-    Name = "Place Once",
-    ButtonText = "Place",
-    Callback = function()
-        task.spawn(function()
-            h.statusText = "[Manual] Depositing eggs..."
-            pcall(g4, h.glideSpeed)
-            pcall(v4)
-            pcall(u4)
-            h.isReturning = false
-            h.delivering = false
-            if h.webhookOnSteal then pcall(nyxWebhook, "Place", "Manual place cycle completed.") end
-        end)
-    end,
-})
-
--- ------------------------------------------------------------
--- EGG SELECT
--- ------------------------------------------------------------
-local EggTab = Window:CreateTab("Egg Select", 2)
-EggTab:CreateSection("Target Filters")
-
-local zoneOptions = {
-    "Light Dark", "Titan Temple", "Cherry Blossom", "Cosmic",
-    "Prehistoric", "Abyss Ocean", "Volcano", "Snow", "Jungle",
-    "Desert", "Lake", "Forest",
-}
-local zoneDefaults = {}
-for _, z in ipairs(zoneOptions) do if h.selectedZones and h.selectedZones[z] then table.insert(zoneDefaults, z) end end
-
-EggTab:CreateDropdown({
-    Name = "Zones",
-    Options = zoneOptions,
-    CurrentOption = zoneDefaults,
-    MultipleOptions = true,
-    Flag = "StealEgg_Zones",
-    Callback = setZonesFromOptions,
-})
-
-local rarityOptions = {
-    "Divine (Tier 6)", "Eternal (Tier 5)", "Secret (Tier 4)",
-    "Cosmic (Tier 3)", "Mythic (Tier 2)", "Legendary (Tier 1)",
-    "Epic", "Rare", "Uncommon", "Common",
-}
-local rarityDefaults = {}
-for _, display in ipairs(rarityOptions) do
-    local key = rarityFromDisplay[display]
-    if h.selectedRarities and h.selectedRarities[key] then table.insert(rarityDefaults, display) end
-end
-
-EggTab:CreateDropdown({
-    Name = "Rarities",
-    Options = rarityOptions,
-    CurrentOption = rarityDefaults,
-    MultipleOptions = true,
-    Flag = "StealEgg_Rarities",
-    Callback = setRaritiesFromOptions,
-})
-
-EggTab:CreateToggle({
-    Name = "Auto Steal Secret",
-    CurrentValue = h.alwaysCollectSecretPlus ~= false,
-    Flag = "StealEgg_AlwaysSecretPlus",
-    Callback = function(v) h.alwaysCollectSecretPlus = v; pcall(x) end,
-})
-
-EggTab:CreateToggle({
-    Name = "Anti Trap",
-    CurrentValue = h.antiTrap ~= false,
-    Flag = "StealEgg_AntiTrap",
-    Callback = function(v) h.antiTrap = v end,
-})
-
-EggTab:CreateToggle({
-    Name = "Auto Index",
-    CurrentValue = h.autoIndex == true,
-    Flag = "StealEgg_AutoIndex",
-    Callback = function(v)
-        h.autoIndex = v
-        if v then task.spawn(nyxTryIndex) end
-    end,
-})
-
-EggTab:CreateSection("Character")
-EggTab:CreateSlider({
-    Name = "Flight Speed",
-    Range = {100, 1000},
-    Increment = 25,
-    Suffix = "Studs/s",
-    CurrentValue = h.glideSpeed or 600,
-    Flag = "StealEgg_FlightSpeed",
-    Callback = function(v) h.glideSpeed = v; pcall(Y, v) end,
-})
-
-EggTab:CreateToggle({
-    Name = "Godmode",
-    CurrentValue = false,
-    Flag = "StealEgg_Godmode",
-    Callback = function(v)
-        if v then
-            pcall(enableNyxGodmode)
-        else
-            pcall(disableNyxGodmode)
         end
-    end,
-})
-
-EggTab:CreateButton({
-    Name = "Get Unstuck",
-    ButtonText = "Fix",
-    Callback = function()
-        pcall(M4)
-        pcall(C4)
-        pcall(D4)
-        uiNotify("Unstuck", "Character state reset")
-    end,
-})
-
-EggTab:CreateSection("Vision")
-EggTab:CreateToggle({
-    Name = "Egg ESP",
-    CurrentValue = h.eggESP == true,
-    Flag = "StealEgg_EggESP",
-    Callback = function(v)
-        h.eggESP = v
-        if v then
-            pcall(nyxEspStart)
-        else
-            pcall(nyxEspStop)
-        end
-    end,
-})
-
--- ------------------------------------------------------------
--- SERVER / PERFORMANCE
--- ------------------------------------------------------------
-local ServerTab = Window:CreateTab("Server", 3)
-ServerTab:CreateSection("Server Hop")
-ServerTab:CreateToggle({
-    Name = "Auto Hop",
-    CurrentValue = h.autoHop == true,
-    Flag = "StealEgg_AutoHop",
-    Callback = function(v) h.autoHop = v end,
-})
-ServerTab:CreateSlider({
-    Name = "Max Hops",
-    Range = {1, 100},
-    Increment = 1,
-    CurrentValue = h.maxHops or 15,
-    Flag = "StealEgg_MaxHops",
-    Callback = function(v) h.maxHops = v end,
-})
-ServerTab:CreateSlider({
-    Name = "Hop Delay",
-    Range = {5, 120},
-    Increment = 1,
-    Suffix = "sec",
-    CurrentValue = h.hopDelay or 20,
-    Flag = "StealEgg_HopDelay",
-    Callback = function(v) h.hopDelay = v end,
-})
-ServerTab:CreateButton({
-    Name = "Hop Now",
-    ButtonText = "Hop",
-    Callback = function()
-        task.spawn(function()
-            local okHop = nyxHopNow()
-            uiNotify("Server Hop", okHop and "Teleporting..." or "No open server")
-        end)
-    end,
-})
-ServerTab:CreateButton({
-    Name = "Reset Hop Count",
-    ButtonText = "Reset",
-    Callback = function() h.hopCount = 0; uiNotify("Server Hop", "Hop count reset") end,
-})
-
-ServerTab:CreateSection("Performance")
-ServerTab:CreateToggle({
-    Name = "FPS Boost",
-    CurrentValue = h.performanceMode == true,
-    Flag = "StealEgg_FPSBoost",
-    Callback = function(v)
-        if v then pcall(Mk) else pcall(Ik) end
-    end,
-})
-ServerTab:CreateToggle({
-    Name = "Disable 3D Rendering",
-    CurrentValue = h.disable3D == true,
-    Flag = "StealEgg_Disable3D",
-    Callback = function(v)
-        h.disable3D = v
-        pcall(function() y:Set3dRenderingEnabled(not v) end)
-        pcall(x)
-    end,
-})
-
-ServerTab:CreateSection("System")
-ServerTab:CreateToggle({
-    Name = "Anti AFK",
-    CurrentValue = h.antiAFK == true,
-    Flag = "StealEgg_AntiAFK",
-    Callback = function(v)
-        h.antiAFK = v
-        pcall(x)
-        if v then pcall(bk) else pcall(Ak) end
-    end,
-})
-ServerTab:CreateToggle({
-    Name = "Hide Money Alert",
-    CurrentValue = h.hideNotEnoughMoney == true,
-    Flag = "StealEgg_HideMoneyAlert",
-    Callback = function(v) h.hideNotEnoughMoney = v; pcall(x) end,
-})
-ServerTab:CreateButton({
-    Name = "Rejoin Server",
-    ButtonText = "Rejoin",
-    Callback = function() pcall(function() TeleportService:TeleportToPlaceInstance(game.PlaceId, game.JobId, o) end) end,
-})
-ServerTab:CreateButton({
-    Name = "Reset Character State",
-    ButtonText = "Reset",
-    Callback = function() pcall(D4); pcall(u4) end,
-})
-
--- ------------------------------------------------------------
--- WEBHOOK
--- ------------------------------------------------------------
-local WebhookTab = Window:CreateTab("Webhook", 98)
-WebhookTab:CreateSection("Discord Webhook")
-WebhookTab:CreateToggle({
-    Name = "Webhook Alerts",
-    CurrentValue = h.webhookEnabled == true,
-    Flag = "StealEgg_WebhookEnabled",
-    Callback = function(v)
-        h.webhookEnabled = v
-        if v and tostring(h.webhookUrl or "") ~= "" then
-            pcall(nyxWebhook, "Online", "Webhook linked to [WORST] - Asaiya · Steal an Egg.")
-        end
-    end,
-})
-WebhookTab:CreateInput({
-    Name = "Webhook URL",
-    CurrentValue = h.webhookUrl or "",
-    PlaceholderText = "https://discord.com/api/webhooks/...",
-    Flag = "StealEgg_WebhookURL",
-    Callback = function(v) h.webhookUrl = tostring(v or "") end,
-})
-WebhookTab:CreateToggle({
-    Name = "Alert on Place",
-    CurrentValue = h.webhookOnSteal ~= false,
-    Flag = "StealEgg_WebhookOnPlace",
-    Callback = function(v) h.webhookOnSteal = v end,
-})
-WebhookTab:CreateToggle({
-    Name = "Alert on Hop",
-    CurrentValue = h.webhookOnHop ~= false,
-    Flag = "StealEgg_WebhookOnHop",
-    Callback = function(v) h.webhookOnHop = v end,
-})
-WebhookTab:CreateButton({
-    Name = "Test Webhook",
-    ButtonText = "Test",
-    Callback = function()
-        h.webhookEnabled = true
-        pcall(nyxWebhook, "Test", "steal an egg script webhook is working rn", {
-            { name = "Style", value = "Monochrome embed", inline = true },
-            { name = "Hub", value = "[WORST] - Asaiya", inline = true },
-        })
-        uiNotify("Webhook", "Test request sent")
-    end,
-})
-WebhookTab:CreateParagraph({
-    Title = "Webhook Events",
-    Content = "Place and server-hop notifications use the webhook settings above. The script only accepts Discord webhook URLs.",
-})
-
--- ------------------------------------------------------------
--- SETTINGS / INFO
--- ------------------------------------------------------------
-local SettingsTab = Window:CreateTab("Settings", 99)
-SettingsTab:CreateSection("Script")
-SettingsTab:CreateParagraph({
-    Title = "Asaiya · Steal an Egg",
-    Content = "This UI is based on the AsaiyaHub framework. All controls here are wired to the Steal an Egg core.",
-})
-SettingsTab:CreateButton({
-    Name = "Reset Character State",
-    ButtonText = "Reset",
-    Callback = function() pcall(D4); pcall(u4) end,
-})
-SettingsTab:CreateButton({
-    Name = "Unload Script",
-    ButtonText = "Unload",
-    Callback = UIShutdown,
-})
-
--- Live status updater
--- This is UI-only and does not alter the farm controller.
-task.spawn(function()
-    while h and h.alive and sg.Parent do
-        pcall(function()
-            statusLabel:Set("Status: " .. tostring(h.statusText or "Ready"))
-            targetLabel:Set("Target: " .. tostring(h.bestEggInfo or "Scanning..."))
-        end)
-        task.wait(0.5)
+        )
     end
-end)
-
--- Ensure saved core options are written using the original config system.
-pcall(x)
-
-Notify("Asaiya · Steal an Egg", "Ready — all Steal an Egg controls are loaded.", 4)
-print("[Asaiya] Steal an Egg UI ready.")
-
-end) -- end AsaiyaHub UI pcall
-
-if not ok then
-    warn("[AsaiyaHub] FATAL ERROR:", err)
+    )E( "PLACE" , 20 )A( "Place Egg" , "Tween home, place all carried eggs & hatch" ,Color3.fromRGB ( 155 , 155 , 155 ), 21 ,function(...) task.spawn (function(...) h.statusText = "[Manual] Depositing eggs..." g4(h.glideSpeed )v4()u4()h.isReturning = false h.delivering = false
+        end
+        )
+    end
+    )b( "Auto Place" , "Automatically place eggs at base" ,h.autoPlaceEvery5 ,Color3.fromRGB ( 190 , 190 , 190 ), 22 ,function(e,...) h.autoPlaceEvery5 =e
+        if not e then
+            h.batchStealCount = 0
+        end
+    end
+    )b( "Auto Hatch" , "Automatically hatch ready eggs" ,h.autoHatch ,Color3.fromRGB ( 155 , 155 , 155 ), 22 ,function(e,...) h.autoHatch =e
+    end
+    )b( "Auto Return" , "Return to safe area after stealing" ,h.autoGlide ,Color3.fromRGB ( 190 , 190 , 190 ), 23 ,function(e,...) h.autoGlide =e
+    end
+    )b( "Auto Treadmill" , "Run on treadmill when idle" ,h.autoTreadmill ,Color3.fromRGB ( 180 , 180 , 180 ), 24 ,function(e,...) h.autoTreadmill =e x()n4()
+        if not e and((h.onTreadmill or L4()))then
+            M4()
+        end
+    end
+    )E( "PREFERENCE" , 30 )b( "Godmode" , "Ignore damage and traps" , false ,Color3.fromRGB ( 160 , 160 , 160 ), 31 ,function(e,...)
+        if e then
+            enableasaiyaGodmode()
+        else
+            disableasaiyaGodmode()
+        end
+    end
+    )A( "Get Unstuck" , "Free yourself from stuck positions" ,Color3.fromRGB ( 155 , 155 , 155 ), 32 ,function(...) pcall(M4)pcall(C4)pcall(D4)
+    end
+    )E( "SETTINGS" , 40 )
+    local F=Instance.new ( "Frame" )F.Size =UDim2.new ( 1 , 0 , 0 , 48 )F.BackgroundColor3 =t F.LayoutOrder = 41 F.Parent =n;
+    (Instance.new ( "UICorner" ,F)).CornerRadius =UDim.new ( 0 , 8 )
+    local O=Instance.new ( "TextLabel" )O.Size =UDim2.new ( 1 , -130 , 0 , 18 )O.Position =UDim2.new ( 0 , 10 , 0 , 6 )O.BackgroundTransparency = 1 O.Text = "Flight Speed" O.TextColor3 =B O.TextSize = 13 O.Font =Enum.Font.GothamBold O.TextXAlignment =Enum.TextXAlignment.Left O.AutoLocalize = false O.Parent =F
+    local T=Instance.new ( "TextLabel" )T.Size =UDim2.new ( 0 , 70 , 0 , 24 )T.Position =UDim2.new ( 1 , -80 , 0.5 , -12 )T.BackgroundColor3 =V T.Text =string.format ( "%d Studs/s" ,h.glideSpeed or 600 )T.TextColor3 =Color3.fromRGB ( 190 , 190 , 190 )T.TextSize = 11 T.Font =Enum.Font.GothamBold T.AutoLocalize = false T.Parent =F;
+    (Instance.new ( "UICorner" ,T)).CornerRadius =UDim.new ( 0 , 6 )
+    local W=Instance.new ( "TextButton" )W.Size =UDim2.new ( 0 , 24 , 0 , 24 )W.Position =UDim2.new ( 1 , -110 , 0.5 , -12 )W.BackgroundColor3 =s W.Text = "-" W.TextColor3 =B W.TextSize = 14 W.Font =Enum.Font.GothamBold W.Parent =F;
+    (Instance.new ( "UICorner" ,W)).CornerRadius =UDim.new ( 0 , 6 )
+    local m=Instance.new ( "TextButton" )m.Size =UDim2.new ( 0 , 24 , 0 , 24 )m.Position =UDim2.new ( 1 , -138 , 0.5 , -12 )m.BackgroundColor3 =s m.Text = "+" m.TextColor3 =B m.TextSize = 14 m.Font =Enum.Font.GothamBold m.Parent =F;
+    (Instance.new ( "UICorner" ,m)).CornerRadius =UDim.new ( 0 , 6 )W.MouseButton1Click :Connect(function(...) h.glideSpeed =math.max ( 100 ,((h.glideSpeed or 600 ))- 25 )T.Text =string.format ( "%d Studs/s" ,h.glideSpeed )Y(h.glideSpeed )
+    end
+    )m.MouseButton1Click :Connect(function(...) h.glideSpeed =math.min ( 1000 ,((h.glideSpeed or 600 ))+ 25 )T.Text =string.format ( "%d Studs/s" ,h.glideSpeed )Y(h.glideSpeed )
+    end
+    )A( "Reset Character State" , "Clear velocity, cancel push & unfreeze" ,Color3.fromRGB ( 180 , 180 , 180 ), 42 ,function(...) pcall(D4)pcall(u4)
+    end
+    )A( "Unload Script" , "Destroy UI and stop all background loops" ,Color3.fromRGB ( 153 , 27 , 27 ), 43 ,function(...) aM()
+    end
+    )E( "EGG SELECT (ZONES & RARITIES)" , 45 )
+    local e4=Instance.new ( "TextButton" )e4.Size =UDim2.new ( 1 , 0 , 0 , 48 )e4.BackgroundColor3 =t e4.LayoutOrder = 46 e4.Text = "" e4.AutoButtonColor = false e4.Parent =n;
+    (Instance.new ( "UICorner" ,e4)).CornerRadius =UDim.new ( 0 , 8 )
+    local function r4(...)
+        local e= 0
+        for y,u in ipairs(M)do
+            if h.selectedZones and h.selectedZones [u]then
+                e=e+ 1
+            end
+        end
+        return e
+    end
+    local w4=Instance.new ( "TextLabel" )w4.Size =UDim2.new ( 1 , -50 , 0 , 18 )w4.Position =UDim2.new ( 0 , 10 , 0 , 6 )w4.BackgroundTransparency = 1 w4.Text =string.format ( "Target Zones (%d/12 Active)" ,r4())w4.TextColor3 =Color3.fromRGB ( 165 , 165 , 165 )w4.TextSize = 13 w4.Font =Enum.Font.GothamBold w4.TextXAlignment =Enum.TextXAlignment.Left w4.AutoLocalize = false w4.Parent =e4
+    local j4=Instance.new ( "TextLabel" )j4.Size =UDim2.new ( 1 , -50 , 0 , 16 )j4.Position =UDim2.new ( 0 , 10 , 0 , 26 )j4.BackgroundTransparency = 1 j4.Text = "Click to expand / collapse zone selection" j4.TextColor3 =J j4.TextSize = 10 j4.Font =Enum.Font.Gotham j4.TextXAlignment =Enum.TextXAlignment.Left j4.AutoLocalize = false j4.Parent =e4
+    local k4=Instance.new ( "TextLabel" )k4.Size =UDim2.new ( 0 , 30 , 0 , 30 )k4.Position =UDim2.new ( 1 , -38 , 0.5 , -15 )k4.BackgroundTransparency = 1 k4.Text = "" k4.TextColor3 =J k4.TextSize = 12 k4.Font =Enum.Font.GothamBold k4.Parent =e4
+    local a4=Instance.new ( "Frame" )a4.Size =UDim2.new ( 1 , 0 , 0 , 0 )a4.BackgroundColor3 =Color3.fromRGB ( 16 , 16 , 16 )a4.LayoutOrder = 47 a4.Visible = false a4.ClipsDescendants = true a4.Parent =n;
+    (Instance.new ( "UICorner" ,a4)).CornerRadius =UDim.new ( 0 , 8 )
+    local o4=Instance.new ( "UIGridLayout" )o4.CellSize =UDim2.new ( 0.48 , 0 , 0 , 32 )o4.CellPadding =UDim2.new ( 0.04 , 0 , 0 , 6 )o4.SortOrder =Enum.SortOrder.LayoutOrder o4.Parent =a4;
+    (Instance.new ( "UIPadding" ,a4)).PaddingTop =UDim.new ( 0 , 8 )a4.UIPadding.PaddingBottom =UDim.new ( 0 , 8 )a4.UIPadding.PaddingLeft =UDim.new ( 0 , 8 )a4.UIPadding.PaddingRight =UDim.new ( 0 , 8 )
+    local V4={}
+    for e,r in ipairs(M)do
+        local y=Instance.new ( "TextButton" )y.LayoutOrder =e y.Font =Enum.Font.GothamBold y.TextSize = 11 y.AutoButtonColor = false y.AutoLocalize = false ;
+        (Instance.new ( "UICorner" ,y)).CornerRadius =UDim.new ( 0 , 6 )
+        local function u(...)
+            local e=h.selectedZones and h.selectedZones [r]== true
+            if e then
+                y.BackgroundColor3 =d[r]or Color3.fromRGB ( 170 , 170 , 170 )y.TextColor3 =Color3.new ( 1 , 1 , 1 )y.Text = "" ..r
+            else
+                y.BackgroundColor3 =Color3.fromRGB ( 28 , 28 , 28 )y.TextColor3 =Color3.fromRGB ( 140 , 150 , 170 )y.Text =r
+            end
+        end
+        u()y.MouseButton1Click :Connect(function(...)
+            if not h.selectedZones then
+                h.selectedZones ={}
+            end
+            h.selectedZones [r]=not((h.selectedZones [r]== true ))u()x()w4.Text =string.format ( "Target Zones (%d/12 Active)" ,r4())
+        end
+        )y.Parent =a4 V4[r]=y
+    end
+    local H4= false e4.MouseButton1Click :Connect(function(...) H4=not H4 a4.Visible =H4 a4.Size =H4 and UDim2.new ( 1 , 0 , 0 , 240 )or UDim2.new ( 1 , 0 , 0 , 0 )k4.Text =H4 and "" or ""
+    end
+    )
+    local function t4(...)
+        local e= 0
+        for y,u in ipairs(X)do
+            if h.selectedRarities and h.selectedRarities [u]then
+                e=e+ 1
+            end
+        end
+        return e
+    end
+    local s4=Instance.new ( "TextButton" )s4.Size =UDim2.new ( 1 , 0 , 0 , 48 )s4.BackgroundColor3 =t s4.LayoutOrder = 48 s4.Text = "" s4.AutoButtonColor = false s4.Parent =n;
+    (Instance.new ( "UICorner" ,s4)).CornerRadius =UDim.new ( 0 , 8 )
+    local p4=Instance.new ( "TextLabel" )p4.Size =UDim2.new ( 1 , -50 , 0 , 18 )p4.Position =UDim2.new ( 0 , 10 , 0 , 6 )p4.BackgroundTransparency = 1 p4.Text =string.format ( "Target Rarities (%d/%d Active)" ,t4(),#X)p4.TextColor3 =Color3.fromRGB ( 255 , 180 , 0 )p4.TextSize = 13 p4.Font =Enum.Font.GothamBold p4.TextXAlignment =Enum.TextXAlignment.Left p4.AutoLocalize = false p4.Parent =s4
+    local B4=Instance.new ( "TextLabel" )B4.Size =UDim2.new ( 1 , -50 , 0 , 16 )B4.Position =UDim2.new ( 0 , 10 , 0 , 26 )B4.BackgroundTransparency = 1 B4.Text = "Click to expand / collapse rarity selection" B4.TextColor3 =J B4.TextSize = 10 B4.Font =Enum.Font.Gotham B4.TextXAlignment =Enum.TextXAlignment.Left B4.AutoLocalize = false B4.Parent =s4
+    local J4=Instance.new ( "TextLabel" )J4.Size =UDim2.new ( 0 , 30 , 0 , 30 )J4.Position =UDim2.new ( 1 , -38 , 0.5 , -15 )J4.BackgroundTransparency = 1 J4.Text = "" J4.TextColor3 =J J4.TextSize = 12 J4.Font =Enum.Font.GothamBold J4.Parent =s4
+    local K4=Instance.new ( "Frame" )K4.Size =UDim2.new ( 1 , 0 , 0 , 0 )K4.BackgroundColor3 =Color3.fromRGB ( 16 , 16 , 16 )K4.LayoutOrder = 49 K4.Visible = false K4.ClipsDescendants = true K4.Parent =n;
+    (Instance.new ( "UICorner" ,K4)).CornerRadius =UDim.new ( 0 , 8 )
+    local c4=Instance.new ( "UIGridLayout" )c4.CellSize =UDim2.new ( 0.48 , 0 , 0 , 32 )c4.CellPadding =UDim2.new ( 0.04 , 0 , 0 , 6 )c4.SortOrder =Enum.SortOrder.LayoutOrder c4.Parent =K4;
+    (Instance.new ( "UIPadding" ,K4)).PaddingTop =UDim.new ( 0 , 8 )K4.UIPadding.PaddingBottom =UDim.new ( 0 , 8 )K4.UIPadding.PaddingLeft =UDim.new ( 0 , 8 )K4.UIPadding.PaddingRight =UDim.new ( 0 , 8 )
+    for e,r in ipairs(X)do
+        local y=Instance.new ( "TextButton" )y.LayoutOrder =e y.Font =Enum.Font.GothamBold y.TextSize = 11 y.AutoButtonColor = false y.AutoLocalize = false ;
+        (Instance.new ( "UICorner" ,y)).CornerRadius =UDim.new ( 0 , 6 )
+        local function u(...)
+            local e=h.selectedRarities and h.selectedRarities [r]== true
+            if e then
+                y.BackgroundColor3 =G[r]or Color3.fromRGB ( 155 , 155 , 155 )y.TextColor3 =Color3.new ( 1 , 1 , 1 )y.Text = "" ..r
+            else
+                y.BackgroundColor3 =Color3.fromRGB ( 28 , 28 , 28 )y.TextColor3 =Color3.fromRGB ( 140 , 150 , 170 )y.Text =r
+            end
+        end
+        u()y.MouseButton1Click :Connect(function(...)
+            if not h.selectedRarities then
+                h.selectedRarities ={}
+            end
+            h.selectedRarities [r]=not((h.selectedRarities [r]== true ))u()x()p4.Text =string.format ( "Target Rarities (%d/%d Active)" ,t4(),#X)
+        end
+        )y.Parent =K4
+    end
+    local i4= false s4.MouseButton1Click :Connect(function(...) i4=not i4 K4.Visible =i4 K4.Size =i4 and UDim2.new ( 1 , 0 , 0 , 160 )or UDim2.new ( 1 , 0 , 0 , 0 )J4.Text =i4 and "" or ""
+    end
+    )e(function(...) Q.Visible = true
+    end
+    )
 end
+H( "[+] Initializing [WORST] - Asaiya x WindUI v1.0 ([WORST] - Asaiya Edition)..." )oM()task.spawn (function(...) task.wait ( 0.5 )A4()b4( true )C4()
+    if o.Character then
+        z4(o.Character )
+    end
+    u4()H( "[+] Auto Humanoid Swap & Rigid Joint Locking Active." )
+end
+)o.CharacterAdded :Connect(function(e,...) task.wait ( 0.6 )
+    if h.alive then
+        D4()n4()C4()A4()b4( true )z4(e)u4()
+    end
+end
+)
+if h.performanceMode then
+    task.spawn (Mk)
+end
+if h.disable3D then
+    pcall(function(...) y:Set3dRenderingEnabled( false )
+    end
+    )
+end
+if h.antiAFK then
+    task.spawn (bk)
+end
+H( "[+] [WORST] - Asaiya v1.0 Ready!" )
