@@ -275,17 +275,17 @@ local function T(...)
     [ "Volcano" ]= false ,[ "Snow" ]= false ;
     [ "Jungle" ]= false ,[ "Desert" ]= false ;
     [ "Lake" ]= false ,[ "Forest" ]= false }
-    local y={[ "Divine" ]= true ,[ "Eternal" ]= true ,[ "Secret" ]= true ,[ "Cosmic" ]= true ,[ "Mythic" ]= true ;
+    local y={[ "Divine" ]= true ,[ "Eternal" ]= true ,[ "Secret" ]= true ,[ "Cosmic" ]= false ,[ "Mythic" ]= false ;
     [ "Legendary" ]= false ,[ "Epic" ]= false ,[ "Rare" ]= false ;
     [ "Uncommon" ]= false ;
     [ "Common" ]= false }
     if type(e)~= "table" then
         e={[ "selectedZones" ]=r;
-        [ "selectedRarities" ]=y,[ "alwaysCollectSecretPlus" ]= true ,[ "minRarityTier" ]= 2 ;
+        [ "selectedRarities" ]=y,[ "alwaysCollectSecretPlus" ]= false ,[ "minRarityTier" ]= 4 ;
         [ "autoTreadmill" ]= false ;
-        [ "autoUpgradeTreadmill" ]= false ,[ "autoBuyTrails" ]= true ;
-        [ "hideNotEnoughMoney" ]= true ;
-        [ "performanceMode" ]= false ,[ "disable3D" ]= false ,[ "antiAFK" ]= true ,[ "language" ]= "EN" }
+        [ "autoUpgradeTreadmill" ]= false ,[ "autoBuyTrails" ]= false ;
+        [ "hideNotEnoughMoney" ]= false ;
+        [ "performanceMode" ]= false ,[ "disable3D" ]= false ,[ "antiAFK" ]= false ,[ "language" ]= "EN" }
     else
         if type(e.selectedZones )~= "table" then
             e.selectedZones =r
@@ -300,7 +300,7 @@ local function T(...)
             end
         end
         if e.alwaysCollectSecretPlus ==nil then
-            e.alwaysCollectSecretPlus = true
+            e.alwaysCollectSecretPlus = false
         end
         if e.minRarityTier ==nil then
             e.minRarityTier = 2
@@ -312,10 +312,10 @@ local function T(...)
             e.autoUpgradeTreadmill = false
         end
         if e.autoBuyTrails ==nil then
-            e.autoBuyTrails = true
+            e.autoBuyTrails = false
         end
         if e.hideNotEnoughMoney ==nil then
-            e.hideNotEnoughMoney = true
+            e.hideNotEnoughMoney = false
         end
         if e.performanceMode ==nil then
             e.performanceMode = false
@@ -324,7 +324,7 @@ local function T(...)
             e.disable3D = false
         end
         if e.antiAFK ==nil then
-            e.antiAFK = true
+            e.antiAFK = false
         end
         if e.language and((e.language == "EN" or e.language == "TH" ))then
             currentLang=e.language
@@ -342,23 +342,37 @@ local function x(...) pcall(function(...)
             [ "performanceMode" ]=(h.performanceMode == true );
             [ "disable3D" ]=(h.disable3D == true );
             [ "antiAFK" ]=(h.antiAFK == true );
+            [ "godmode" ]=(h.godmode == true );
+            [ "autoGlide" ]=(h.autoGlide == true );
+            [ "autoHatch" ]=(h.autoHatch == true );
+            [ "autoPlaceEvery5" ]=(h.autoPlaceEvery5 == true );
+            [ "pureTweenFarm" ]=(h.pureTweenFarm == true );
+            [ "autoFarmLoop" ]=(h.autoFarmLoop == true );
+            [ "antiTrap" ]=(h.antiTrap == true );
+            [ "autoIndex" ]=(h.autoIndex == true );
+            [ "eggESP" ]=(h.eggESP == true );
+            [ "autoHop" ]=(h.autoHop == true );
+            [ "webhookEnabled" ]=(h.webhookEnabled == true );
+            [ "webhookOnSteal" ]=(h.webhookOnSteal == true );
+            [ "webhookOnHop" ]=(h.webhookOnHop == true );
+            [ "hideNotEnoughMoney" ]=(h.hideNotEnoughMoney == true );
             [ "language" ]=currentLang or "EN" }
             local y=a:JSONEncode(r)writefile(z,y)
         end
     end
     )
 end
-local W=T()h={[ "godmode" ]= true ,[ "autoGlide" ]= true ,[ "autoHatch" ]= true ;
-[ "autoPlaceEvery5" ]= false ;
+local W=T()h={[ "godmode" ]=(W.godmode == true),[ "autoGlide" ]=(W.autoGlide == true),[ "autoHatch" ]=(W.autoHatch == true) ;
+[ "autoPlaceEvery5" ]=(W.autoPlaceEvery5 == true) ;
 [ "batchStealCount" ]= 0 ,[ "isBatchPlacing" ]= false ,[ "isHatching" ]= false ;
-[ "autoFarmLoop" ]= false ,[ "pureTweenFarm" ]= false ;
+[ "autoFarmLoop" ]=(W.autoFarmLoop == true) ,[ "pureTweenFarm" ]=(W.pureTweenFarm == true) ;
 [ "glidingToTarget" ]= false ;
 [ "securingEgg" ]= false ,[ "glideSpeed" ]=O();
 [ "selectedZones" ]=W.selectedZones ;
 [ "selectedRarities" ]=W.selectedRarities ;
-[ "alwaysCollectSecretPlus" ]=W.alwaysCollectSecretPlus ,[ "minRarityTier" ]=W.minRarityTier ,[ "autoTreadmill" ]=(W.autoTreadmill == true );
-[ "autoUpgradeTreadmill" ]=(W.autoUpgradeTreadmill == true ),[ "autoBuyTrails" ]=(W.autoBuyTrails ~= false ),[ "hideNotEnoughMoney" ]= true ;
-[ "performanceMode" ]=(W.performanceMode == true ),[ "disable3D" ]=(W.disable3D == true ),[ "antiAFK" ]=(W.antiAFK ~= false ),[ "onTreadmill" ]= false ,[ "lastTreadmillMount" ]= 0 ,[ "laneZ" ]= -360 ,[ "swapped" ]= false ;
+[ "alwaysCollectSecretPlus" ]=(W.alwaysCollectSecretPlus == true) ,[ "minRarityTier" ]=W.minRarityTier ,[ "autoTreadmill" ]=(W.autoTreadmill == true );
+[ "autoUpgradeTreadmill" ]=(W.autoUpgradeTreadmill == true ),[ "autoBuyTrails" ]=(W.autoBuyTrails == true ),[ "hideNotEnoughMoney" ]=(W.hideNotEnoughMoney == true) ;
+[ "performanceMode" ]=(W.performanceMode == true ),[ "disable3D" ]=(W.disable3D == true ),[ "antiAFK" ]=(W.antiAFK == true ),[ "onTreadmill" ]= false ,[ "lastTreadmillMount" ]= 0 ,[ "laneZ" ]= -360 ,[ "swapped" ]= false ;
 [ "teleporting" ]= false ,[ "isReturning" ]= false ;
 [ "delivering" ]= false ,[ "holdingEggForGuard" ]= false ,[ "currentTargetModel" ]=nil,[ "targetPosition" ]=nil;
 [ "stateTime" ]=os.clock (),[ "statusText" ]= "Ready" ,[ "bestEggInfo" ]= "Scanning..." ;
@@ -367,17 +381,17 @@ local W=T()h={[ "godmode" ]= true ,[ "autoGlide" ]= true ,[ "autoHatch" ]= true 
 [ "pen" ]=nil,[ "origin" ]=nil;
 [ "tread" ]=nil;
 -- added features (do not replace existing)
-[ "eggESP" ]= false ;
-[ "antiTrap" ]= true ;
-[ "autoIndex" ]= false ;
-[ "autoHop" ]= false ;
+[ "eggESP" ]=(W.eggESP == true) ;
+[ "antiTrap" ]=(W.antiTrap == true) ;
+[ "autoIndex" ]=(W.autoIndex == true) ;
+[ "autoHop" ]=(W.autoHop == true) ;
 [ "maxHops" ]= 15 ;
 [ "hopDelay" ]= 20 ;
 [ "hopCount" ]= 0 ;
-[ "webhookEnabled" ]= false ;
+[ "webhookEnabled" ]=(W.webhookEnabled == true) ;
 [ "webhookUrl" ]= "" ;
-[ "webhookOnSteal" ]= true ;
-[ "webhookOnHop" ]= true ;
+[ "webhookOnSteal" ]=(W.webhookOnSteal == true) ;
+[ "webhookOnHop" ]=(W.webhookOnHop == true) ;
 }
 local m
 local e4
@@ -3155,17 +3169,9 @@ N4=function(...)
                 local B=string.format ( "%s %s %s %s" ,tostring(e or "" ),tostring(r.Uid or "" ),tostring(r.Name or "" ),(r.PhysicalModel and r.PhysicalModel.Name )or "" )
                 local J=Dk(t,H,B)
                 local K,c=k(r,e,o,y)
-                local v=(K>= 4 or c== "Secret" or c== "Eternal" or c== "Divine" )
                 local i=(h.selectedZones and h.selectedZones [J]== true )
                 local R=(h.selectedRarities and h.selectedRarities [c]== true )
-                local g= false
-                if v then
-                    g= true
-                else
-                    if i and R then
-                        g= true
-                    end
-                end
+                local g=(i and R) == true
                 if g then
                     local k=tonumber(r.AssetScale or r.Scale )or 1
                     local a= 1
@@ -3409,7 +3415,7 @@ l4=function(e,u,...)
     if not h.swapped then
         A4()
     end
-    if not h.godmode then
+    if h.godmode then
         b4( true )
     end
     Z4(w)
@@ -3652,7 +3658,7 @@ local Ck=os.clock ()task.spawn (function(...)
                             if not h.swapped then
                                 A4()
                             end
-                            if not h.godmode then
+                            if h.godmode then
                                 b4( true )
                             end
                             Z4(r)pcall(function(...) o:RequestStreamAroundAsync(w.Position )
@@ -5095,6 +5101,17 @@ local function oM(...)
         local U=nil
         local l=nil
         hk:Section({[ "Title" ]= "Farm" })
+        local activateFarmPreset
+        Fk.togFarmPreset =hk:Toggle({[ "Title" ]= "Farm Preset" ;
+        [ "Desc" ]= "Only Auto Steal, Auto Return, Auto Treadmill, Auto Steal Secret and Anti Trap (Tier 4-6, 3 zones)" ;
+        [ "Icon" ]= "solar:settings-bold" ;
+        [ "Value" ]= false ;
+        [ "Callback" ]=function(state,...)
+            if activateFarmPreset then
+                activateFarmPreset(state)
+            end
+        end
+        })
         Fk.togTween =hk:Toggle({[ "Title" ]=P.Farm.TweenTitle ,[ "Desc" ]=P.Farm.TweenDesc ,[ "Icon" ]= "solar:compass-bold" ;
         [ "Value" ]=h.pureTweenFarm ;
         [ "Callback" ]=function(e,...)
@@ -5192,6 +5209,44 @@ local function oM(...)
             [ "Icon" ]=e and "check-circle" or "x-circle" })
         end
         })
+        activateFarmPreset=function(enabled,...)
+            local function setToggle(name,value)
+                local t=Fk[name]
+                if t and t.Set then
+                    pcall(function() t:Set(value) end)
+                end
+            end
+            -- Disable every other user-facing toggle first.
+            local all={
+                "togTween","togAutoPlace","togAutoHatch","togAutoReturn","togAutoTreadmill",
+                "togAutoUpgradeTreadmill","togAutoBuyTrails","togAlwaysSecret","togAntiTrap",
+                "togAutoIndex","togGodmode","togAntiAFK","togEggESP","togAutoHop","togFpsBoost",
+                "togWebhook","togWebhookSteal","togWebhookHop"
+            }
+            for _,name in ipairs(all) do
+                setToggle(name,false)
+            end
+            if not enabled then
+                x()
+                j({[ "Title" ]= "Farm Preset" ,[ "Content" ]= "Preset disabled: all toggles are off" ,[ "Icon" ]= "x-circle" })
+                return
+            end
+            -- Apply the requested preset.
+            setToggle("togTween",true)
+            setToggle("togAutoReturn",true)
+            setToggle("togAutoTreadmill",true)
+            setToggle("togAlwaysSecret",true)
+            setToggle("togAntiTrap",true)
+            h.selectedZones={[ "Light Dark" ]=true,[ "Titan Temple" ]=true,[ "Cherry Blossom" ]=true}
+            h.selectedRarities={[ "Secret" ]=true,[ "Eternal" ]=true,[ "Divine" ]=true}
+            h.minRarityTier=4
+            h.glideSpeed=600
+            pcall(function() if Fk.dropTargetZones and Fk.dropTargetZones.Set then Fk.dropTargetZones:Set({"Light Dark","Titan Temple","Cherry Blossom"}) end end)
+            pcall(function() if Fk.dropTargetRarities and Fk.dropTargetRarities.Set then Fk.dropTargetRarities:Set({"Divine (Tier 6)","Eternal (Tier 5)","Secret (Tier 4)"}) end end)
+            pcall(function() if Fk.sliderSpeed and Fk.sliderSpeed.Set then Fk.sliderSpeed:Set(600) end end)
+            x()
+            j({[ "Title" ]= "Farm Preset" ,[ "Content" ]= "Preset enabled: Auto Steal + Return + Treadmill + Secret+ + Anti Trap" ,[ "Icon" ]= "check-circle" })
+        end
         Ok:Section({[ "Title" ]= "Eggs" })
         Fk.togAlwaysSecret =Ok:Toggle({[ "Title" ]=(P.EggSelect and P.EggSelect.AlwaysSecretPlus )or "Auto Steal Secret" ;
         [ "Desc" ]=(P.EggSelect and P.EggSelect.AlwaysSecretPlusDesc )or "Always collect Secret and above" ;
@@ -5825,7 +5880,7 @@ local function oM(...)
     end
     )
 end
-H( "[+] Initializing [WORST] - Asaiya x WindUI v1.0 ([WORST] - Asaiya Edition)..." )oM()task.spawn (function(...) task.wait ( 0.5 )A4()b4( true )C4()
+H( "[+] Initializing [WORST] - Asaiya x WindUI v1.0 ([WORST] - Asaiya Edition)..." )oM()task.spawn (function(...) task.wait ( 0.5 )A4()b4(h.godmode == true)C4()
     if o.Character then
         z4(o.Character )
     end
@@ -5833,7 +5888,7 @@ H( "[+] Initializing [WORST] - Asaiya x WindUI v1.0 ([WORST] - Asaiya Edition)..
 end
 )o.CharacterAdded :Connect(function(e,...) task.wait ( 0.6 )
     if h.alive then
-        D4()n4()C4()A4()b4( true )z4(e)u4()
+        D4()n4()C4()A4()b4(h.godmode == true)z4(e)u4()
     end
 end
 )
