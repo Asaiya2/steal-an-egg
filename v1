@@ -376,6 +376,7 @@ local function x(...) pcall(function(...)
             [ "autoPlaceEvery5" ]=(h.autoPlaceEvery5 == true );
             [ "pureTweenFarm" ]=(h.pureTweenFarm == true );
             [ "autoFarmLoop" ]=(h.autoFarmLoop == true );
+            [ "farmPreset" ]=(h.farmPreset == true );
             [ "antiTrap" ]=(h.antiTrap == true );
             [ "autoIndex" ]=(h.autoIndex == true );
             [ "eggESP" ]=(h.eggESP == true );
@@ -394,6 +395,7 @@ local W=T()h={[ "godmode" ]=(W.godmode == true),[ "autoGlide" ]=(W.autoGlide == 
 [ "autoPlaceEvery5" ]=(W.autoPlaceEvery5 == true) ;
 [ "batchStealCount" ]= 0 ,[ "isBatchPlacing" ]= false ,[ "isHatching" ]= false ;
 [ "autoFarmLoop" ]=(W.autoFarmLoop == true) ,[ "pureTweenFarm" ]=(W.pureTweenFarm == true) ;
+[ "farmPreset" ]=(W.farmPreset == true) ;
 [ "glidingToTarget" ]= false ;
 [ "securingEgg" ]= false ,[ "glideSpeed" ]=O();
 [ "selectedZones" ]=W.selectedZones ;
@@ -5339,18 +5341,18 @@ local function oM(...)
 
                 -- Push to UI
                 pcall(function()
-                    if Fk.txtStatus and Fk.txtStatus.Set then
-                        Fk.txtStatus:Set({ Desc = statusLine })
+                    if Fk.txtStatus and Fk.txtStatus.SetDesc then
+                        Fk.txtStatus:SetDesc(statusLine)
                     end
                 end)
                 pcall(function()
-                    if Fk.txtStatusDetail and Fk.txtStatusDetail.Set then
-                        Fk.txtStatusDetail:Set({ Desc = detailLine })
+                    if Fk.txtStatusDetail and Fk.txtStatusDetail.SetDesc then
+                        Fk.txtStatusDetail:SetDesc(detailLine)
                     end
                 end)
                 pcall(function()
-                    if Fk.txtStatusMeta and Fk.txtStatusMeta.Set then
-                        Fk.txtStatusMeta:Set({ Desc = metaLine })
+                    if Fk.txtStatusMeta and Fk.txtStatusMeta.SetDesc then
+                        Fk.txtStatusMeta:SetDesc(metaLine)
                     end
                 end)
             end
@@ -5361,8 +5363,9 @@ local function oM(...)
         Fk.togFarmPreset =hk:Toggle({[ "Title" ]= "Farm Preset" ;
         [ "Desc" ]= "Only Auto Steal, Auto Return, Auto Treadmill, Auto Steal Secret and Anti Trap (Tier 4-6, 3 zones)" ;
         [ "Icon" ]= "solar:settings-bold" ;
-        [ "Value" ]= false ;
+        [ "Value" ]=h.farmPreset == true ;
         [ "Callback" ]=function(state,...)
+            h.farmPreset = state == true
             if activateFarmPreset then
                 activateFarmPreset(state)
             end
@@ -5469,6 +5472,8 @@ Fk.btnWarpOnce =hk:Button({[ "Title" ]= "Single Steal (Teleport)" ;[ "Desc" ]= "
         end
         })
         activateFarmPreset=function(enabled,...)
+            -- Save the preset state itself before changing its component toggles.
+            h.farmPreset = enabled == true
             local function setToggle(name,value)
                 local t=Fk[name]
                 if t and t.Set then
@@ -5505,6 +5510,19 @@ Fk.btnWarpOnce =hk:Button({[ "Title" ]= "Single Steal (Teleport)" ;[ "Desc" ]= "
             pcall(function() if Fk.sliderSpeed and Fk.sliderSpeed.Set then Fk.sliderSpeed:Set(600) end end)
             x()
             j({[ "Title" ]= "Farm Preset" ,[ "Content" ]= "Preset enabled: Auto Steal + Return + Treadmill + Secret+ + Anti Trap" ,[ "Icon" ]= "check-circle" })
+        end
+
+        -- Restore Farm Preset if it was enabled during the previous execution.
+        if h.farmPreset then
+            task.defer(function()
+                pcall(function()
+                    if Fk.togFarmPreset and Fk.togFarmPreset.Set then
+                        Fk.togFarmPreset:Set(true)
+                    else
+                        activateFarmPreset(true)
+                    end
+                end)
+            end)
         end
         Ok:Section({[ "Title" ]= "Eggs" })
         Fk.togAlwaysSecret =Ok:Toggle({[ "Title" ]=(P.EggSelect and P.EggSelect.AlwaysSecretPlus )or "Auto Steal Secret" ;
